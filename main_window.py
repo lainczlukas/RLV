@@ -1,4 +1,7 @@
+from msilib.schema import ComboBox
+from multiprocessing.sharedctypes import Value
 from tkinter import *
+from tkinter.ttk import Combobox
 
 
 class Window:
@@ -7,7 +10,7 @@ class Window:
         self.window.geometry("1024x500")
         self.window.configure(bg = "#2a2b2a")
         self.window.title("Reinforcement Learning Visualizator")
-        self.window.iconbitmap("icon.ico")
+        self.window.iconbitmap("img/icon.ico")
         self.window.resizable(False, False)
 
         self.canvas = Canvas(
@@ -20,17 +23,44 @@ class Window:
             relief = "ridge")
         self.canvas.place(x = 0, y = 0)
 
-        self.show_menu_window()
+        self.show_intro_window()
 
-    def show_menu_window(self):
-        self.text_intro = self.canvas.create_text(
-            78.5, 144.5,
-            text = "Welcome",
-            fill = "#ffffff",
-            font = ("RobotoRoman-Bold", 15))
+    def show_intro_window(self):
+        self.background_img = PhotoImage(file = f"img/background_intro.png")
+        self.background = self.canvas.create_image(
+            496.0, 249.5,
+            image=self.background_img)
+
+        self.img0 = PhotoImage(file = f"img/img3.png")
+        self.b0 = Button(
+            image = self.img0,
+            borderwidth = 0,
+            highlightthickness = 0,
+            relief = "flat")
+        self.b0.place(x = 615, y = 376, width = 247, height = 35)
+
+        self.scale_size = Scale(
+            from_=2,
+            to=6,
+            orient=HORIZONTAL,
+            length=70,
+            resolution=1,
+            bg = "#E4E4E4"
+        )
+        self.scale_size.place(x = 704, y = 209)
+
+        self.check = Checkbutton(
+            bg = "#E4E4E4"
+        )
+        self.check.place(x = 704, y = 313)
+
+        self.options = ["Value Iteration", "Policy Iteration"]
+        self.combobox = Combobox(values=self.options, width=20)
+        self.combobox.place(x = 704, y = 266)
+
 
     def show_main_window(self):
-        self.background_img = PhotoImage(file = f"background.png")
+        self.background_img = PhotoImage(file = f"img/background_main.png")
         self.background = self.canvas.create_image(
             613.5, 250.0,
             image=self.background_img)
@@ -55,7 +85,7 @@ class Window:
         )
         self.scale_gamma.place(x = 117, y = 180)
 
-        self.img0 = PhotoImage(file = f"img0.png")
+        self.img0 = PhotoImage(file = f"img/img0.png")
         self.b0 = Button(
             image = self.img0,
             borderwidth = 0,
@@ -64,7 +94,7 @@ class Window:
             relief = "flat")
         self.b0.place(x = 64, y = 50, width = 110, height = 35)
 
-        self.img1 = PhotoImage(file = f"img1.png")
+        self.img1 = PhotoImage(file = f"img/img1.png")
         self.b1 = Button(
             image = self.img1,
             borderwidth = 0,
@@ -73,7 +103,7 @@ class Window:
             relief = "flat")
         self.b1.place(x = 64, y = 347, width = 110, height = 35)
 
-        self.img2 = PhotoImage(file = f"img2.png")
+        self.img2 = PhotoImage(file = f"img/img2.png")
         self.b2 = Button(
             image = self.img2,
             borderwidth = 0,
