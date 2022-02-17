@@ -25,6 +25,7 @@ class Window:
 
         self.show_intro_window()
 
+
     def show_intro_window(self):
         self.background_img = PhotoImage(file = f"img/background_intro.png")
         self.background = self.canvas.create_image(
@@ -157,6 +158,7 @@ class Window:
             relief = "ridge"
         )
         self.output_canvas.place(x = 729, y = 50)
+
 
     def destroy_main_window(self):
         self.canvas.delete('all')
