@@ -47,16 +47,18 @@ class Window:
 
 
     def destroy_intro_window(self):
-        self.canvas.delete('all')
-        self.b0.destroy()
-        self.check.destroy()
-        self.dropdown.destroy()
-        self.scale_size.destroy()
+        self.size = self.scale_size.get()
 
         if self.stochastic.get() == 0: 
             self.state = "Deterministic"
         else:
             self.state = "Stochastic"
+
+        self.canvas.delete('all')
+        self.b0.destroy()
+        self.check.destroy()
+        self.dropdown.destroy()
+        self.scale_size.destroy()
 
         self.show_setup_window()
 
@@ -79,11 +81,13 @@ class Window:
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command=self.validate_setup_inputs, relief = "flat")
         self.b0.place(x = 20, y = 319, width = 197, height = 35)
 
-        self.canvas_grid = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=400, bd = 0, highlightthickness = 0, relief = "ridge")
-        self.canvas_grid.place(x = 284, y = 50)
-
         self.canvas_output = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_output.place(x = 729, y = 50)
+
+        self.canvas_grid = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=400, bd = 0, highlightthickness = 0, relief = "ridge")
+        self.canvas_grid.place(x = 284, y = 50)
+        self.draw_grid()
+        self.canvas_grid.bind("<Button-1>", self.draw)
         
 
     def validate_setup_inputs(self):
@@ -135,6 +139,17 @@ class Window:
         self.scale_speed.destroy()
         self.show_intro_window()
 
+    def draw_grid(self):
+        self.window.update()
+        space_height = self.canvas_grid.winfo_height() / self.size
+        space_width = self.canvas_grid.winfo_width() / self.size
+
+        for i in range(1,self.size):
+            self.canvas_grid.create_line(0, space_height*i, self.canvas_grid.winfo_width(), space_height*i)
+            self.canvas_grid.create_line(space_width*i, 0, space_width*i, self.canvas_grid.winfo_height())
+
+    def draw(self, event):
+        print("wow {}, {}".format(event.x, event.y))
 
 my_window = Window()
 
