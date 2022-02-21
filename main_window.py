@@ -52,7 +52,6 @@ class Window:
     def destroy_intro_window(self):
         self.size = self.scale_size.get()
         self.grid = np.zeros((self.size, self.size), int)
-        print(self.grid)
 
         if self.stochastic.get() == 0: 
             self.state = "Deterministic"
@@ -108,6 +107,10 @@ class Window:
         img = Image.open("img/agent.png")
         img = img.resize((int(self.space_width),int(self.space_height)))
         self.img_agent = ImageTk.PhotoImage(img)
+
+        img = Image.open("img/obstacle.png")
+        img = img.resize((int(self.space_width),int(self.space_height)))
+        self.img_obstacle = ImageTk.PhotoImage(img)
 
 
     def destroy_setup_window(self):
@@ -170,21 +173,14 @@ class Window:
         y_pos = floor(event.y / self.space_width)
 
         if self.item.get() == self.options[0]:
+            self.canvas_grid.delete('agent')            
             if self.grid[x_pos, y_pos] == 1:
-                self.grid[x_pos, y_pos] = 0
-            else:
-                index = np.where(self.grid == 1)
-                self.grid[index[0], index[1]] = 0
+                self.grid[x_pos, y_pos] = 0                
+            else:                
                 self.grid[x_pos,y_pos] = 1
-        self.update_grid()
-
-
-    def update_grid(self):
-        self.canvas_grid.delete('all')
-        self.draw_grid()
-        index = np.where(self.grid == 1)
-        if len(index[0]) > 0:
-            self.canvas_grid.create_image(int(index[0][0] * self.space_width),int(index[1][0] * self.space_height), image=self.img_agent, anchor=NW)
+                index = np.where(self.grid == 1)
+                self.grid[index[0][0], index[1][0]] = 0
+                self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
 
 
 my_window = Window()
