@@ -1,5 +1,8 @@
 from tkinter import *
+from PIL import ImageTk, Image
+import numpy as np
 
+from math import floor
 
 class Window:
     def __init__(self):
@@ -48,6 +51,8 @@ class Window:
 
     def destroy_intro_window(self):
         self.size = self.scale_size.get()
+        self.grid = np.zeros((self.size, self.size), int)
+        print(self.grid)
 
         if self.stochastic.get() == 0: 
             self.state = "Deterministic"
@@ -86,13 +91,23 @@ class Window:
 
         self.canvas_grid = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=400, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_grid.place(x = 284, y = 50)
+
         self.draw_grid()
+        self.read_images()
         self.canvas_grid.bind("<Button-1>", self.draw)
         
 
     def validate_setup_inputs(self):
-        #TODO check whether agent and goal are present
-        self.destroy_setup_window()
+        if 1 in self.grid and 2 in self.grid:
+            self.destroy_setup_window()
+        else:
+            print("Hehe boii")
+
+
+    def read_images(self):
+        img = Image.open("img/agent.png")
+        img = img.resize((int(self.space_width),int(self.space_height)))
+        self.img_agent = ImageTk.PhotoImage(img)
 
 
     def destroy_setup_window(self):
@@ -139,17 +154,38 @@ class Window:
         self.scale_speed.destroy()
         self.show_intro_window()
 
+
     def draw_grid(self):
         self.window.update()
-        space_height = self.canvas_grid.winfo_height() / self.size
-        space_width = self.canvas_grid.winfo_width() / self.size
+        self.space_height = self.canvas_grid.winfo_height() / self.size
+        self.space_width = self.canvas_grid.winfo_width() / self.size
 
         for i in range(1,self.size):
-            self.canvas_grid.create_line(0, space_height*i, self.canvas_grid.winfo_width(), space_height*i)
-            self.canvas_grid.create_line(space_width*i, 0, space_width*i, self.canvas_grid.winfo_height())
+            self.canvas_grid.create_line(0, self.space_height*i, self.canvas_grid.winfo_width(), self.space_height*i)
+            self.canvas_grid.create_line(self.space_width*i, 0, self.space_width*i, self.canvas_grid.winfo_height())
+
 
     def draw(self, event):
-        print("wow {}, {}".format(event.x, event.y))
+        x_pos = floor(event.x / self.space_height)
+        y_pos = floor(event.y / self.space_width)
+
+        if self.item.get() == self.options[0]:
+            if self.grid[x_pos, y_pos] == 1:
+                self.grid[x_pos, y_pos] = 0
+            else:
+                index = np.where(self.grid == 1)
+                self.grid[index[0], index[1]] = 0
+                self.grid[x_pos,y_pos] = 1
+        self.update_grid()
+
+
+    def update_grid(self):
+        self.canvas_grid.delete('all')
+        self.draw_grid()
+        index = np.where(self.grid == 1)
+        if len(index[0]) > 0:
+            self.canvas_grid.create_image(int(index[0][0] * self.space_width),int(index[1][0] * self.space_height), image=self.img_agent, anchor=NW)
+
 
 my_window = Window()
 
