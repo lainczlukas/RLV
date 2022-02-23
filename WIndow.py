@@ -180,8 +180,6 @@ class Window:
     def validate_setup_inputs(self):
         if 1 in self.grid and 2 in self.grid:
             self.destroy_setup_window()
-        else:
-            print("Hehe boii")
 
 
     def read_images(self):
@@ -247,6 +245,7 @@ class Window:
         self.show_intro_window()
 
 
-my_window = Window()
+if __name__ == "__main__":
+    my_window = Window()
 
-my_window.window.mainloop()
+    my_window.window.mainloop()
