@@ -8,7 +8,7 @@ class Value_Iteration:
 
         for x in range(self.window_size):
             for y in range(self.window_size):
-                if grid[x,y] == 0 or grid[x,y] != 1:
+                if grid[x,y] == 0 or grid[x,y] == 1:
                     self.state_values[x,y] = 0
                     continue
 
@@ -28,4 +28,11 @@ class Value_Iteration:
     def draw_values(self, canvas: Canvas, space_width, space_height):
         for x in range(self.window_size):
             for y in range(self.window_size):
-                canvas.create_text(x * space_width + space_width / 2, y * space_height, text=str(self.state_values[x,y]), fill = "#ffffff", font = ("RobotoRoman-Bold", int(space_width / 2)), tags='V{}{}'.format(x,y))
+                if self.state_values[x,y] != -101:
+                    canvas.create_text(
+                        x * space_width + space_width / 1.4, 
+                        y * space_height + space_height / 3, 
+                        text=str(self.state_values[x,y]), 
+                        fill = "#000", 
+                        font = ("RobotoRoman-Bold", int(space_width / 4)), 
+                        tags='V{}{}'.format(x,y))
