@@ -1,10 +1,12 @@
+from Policy_Iteration import Policy_Iteration
+from Value_Iteration import Value_Iteration
+
 from tkinter import *
 from PIL import ImageTk, Image
 import numpy as np
 
 from math import floor
 
-from Value_Iteration import Value_Iteration
 
 class Window:
     def __init__(self):
@@ -39,10 +41,10 @@ class Window:
         self.scale_size = Scale(from_=2, to=6, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_size.place(x = 704, y = 210)
 
-        self.options = ["Value Iteration", "Policy Iteration"]
+        self.options_algo = ["Value Iteration", "Policy Iteration"]
         self.algo = StringVar(self.window)
-        self.algo.set(self.options[0])
-        self.dropdown = OptionMenu(self.window, self.algo, *self.options)
+        self.algo.set(self.options_algo[0])
+        self.dropdown = OptionMenu(self.window, self.algo, *self.options_algo)
         self.dropdown.config(width=15)
         self.dropdown.place(x = 704, y = 265)
 
@@ -73,10 +75,10 @@ class Window:
         self.background_img = PhotoImage(file = f"img/background_main.png")
         self.background = self.canvas.create_image(613.5, 250.0, image=self.background_img)
 
-        self.options = ["Agent", "Goal", "Monster", "Obstacle"]
+        self.options_items = ["Agent", "Goal", "Monster", "Obstacle"]
         self.item = StringVar(self.window)
         self.item.set("Choose Item")
-        self.dropdown = OptionMenu(self.window, self.item, *self.options)
+        self.dropdown = OptionMenu(self.window, self.item, *self.options_items)
         self.dropdown.config(width=15)
         self.dropdown.place(x = 60, y = 80)
 
@@ -125,7 +127,7 @@ class Window:
         x_pos = floor(event.x / self.space_height)
         y_pos = floor(event.y / self.space_width)
 
-        if self.item.get() == self.options[0]:
+        if self.item.get() == self.options_items[0]:
             self.canvas_grid.delete('agent')            
             if self.grid_values[x_pos, y_pos] == 1:
                 self.grid_values[x_pos, y_pos] = 0                
@@ -143,7 +145,7 @@ class Window:
             self.grid_values[x_pos,y_pos] = 1
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_agent, anchor=NW, tags='agent')    
         
-        if self.item.get() == self.options[1]:
+        if self.item.get() == self.options_items[1]:
             self.canvas_grid.delete('goal')   
             if self.grid_values[x_pos, y_pos] == 2:
                 self.grid_values[x_pos, y_pos] = 0
@@ -161,7 +163,7 @@ class Window:
             self.grid_values[x_pos,y_pos] = 2
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_goal, anchor=NW, tags='goal')
 
-        if self.item.get() == self.options[2]:
+        if self.item.get() == self.options_items[2]:
             if self.grid_values[x_pos, y_pos] == 3:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
                 self.grid_values[x_pos, y_pos] = 0
@@ -176,7 +178,7 @@ class Window:
             self.grid_values[x_pos,y_pos] = 3
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_monster, anchor=NW, tags='monster{}{}'.format(x_pos,y_pos))
 
-        if self.item.get() == self.options[3]:
+        if self.item.get() == self.options_items[3]:
             if self.grid_values[x_pos, y_pos] == 4:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
                 self.grid_values[x_pos, y_pos] = 0
@@ -198,8 +200,12 @@ class Window:
 
 
     def destroy_setup_window(self):
-        #if self.algo.get() == self.options[0]:
-        self.algorithm = Value_Iteration(self.size, self.grid_values, self.canvas_grid, self.space_width, self.space_height)
+        if self.algo.get() == self.options_algo[0]:
+            self.algorithm = Value_Iteration(self.size, self.grid_values, self.canvas_grid, self.space_width, self.space_height)
+        
+        if self.algo.get() == self.options_algo[1]:
+            self.algorithm = Policy_Iteration(self.size, self.grid_values, self.canvas_grid, self.space_width, self.space_height)
+            pass
 
         self.canvas.delete(self.text_algo)
         self.canvas.delete(self.text_state)
