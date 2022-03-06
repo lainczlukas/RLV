@@ -4,31 +4,28 @@ from tkinter import Canvas
 class Value_Iteration:   
     def __init__(self, window_size, grid):
         self.window_size = window_size
+        self.grid = grid
         self.state_values = np.zeros((self.window_size, self.window_size), int)
 
         for x in range(self.window_size):
             for y in range(self.window_size):
-                if grid[x,y] == 0 or grid[x,y] == 1:
+                if self.grid[x,y] == 0 or self.grid[x,y] == 1 or self.grid[x,y] == 4:
                     self.state_values[x,y] = 0
                     continue
 
-                if grid[x,y] == 2:
+                if self.grid[x,y] == 2:
                     self.state_values[x,y] = 10
                     continue
 
-                if grid[x,y] == 3:
+                if self.grid[x,y] == 3:
                     self.state_values[x,y] = -10
-                    continue
-
-                if grid[x,y] == 4:
-                    self.state_values[x,y] = -101
                     continue
 
 
     def draw_values(self, canvas: Canvas, space_width, space_height):
         for x in range(self.window_size):
             for y in range(self.window_size):
-                if self.state_values[x,y] != -101:
+                if self.grid[x,y] != 4:
                     canvas.create_text(
                         x * space_width + space_width / 1.4, 
                         y * space_height + space_height / 3, 
