@@ -199,7 +199,7 @@ class Window:
 
     def destroy_setup_window(self):
         #if self.algo.get() == self.options[0]:
-        self.algorithm = Value_Iteration(self.size, self.grid_values)
+        self.algorithm = Value_Iteration(self.size, self.grid_values, self.canvas_grid, self.space_width, self.space_height)
 
         self.canvas.delete(self.text_algo)
         self.canvas.delete(self.text_state)
@@ -216,7 +216,7 @@ class Window:
         self.scale_gamma.place(x = 117, y = 180)
 
         self.img0 = PhotoImage(file = f"img/img0.png")
-        self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
+        self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = lambda: self.algorithm.step(self.scale_speed.get()), relief = "flat")
         self.b0.place(x = 64, y = 50, width = 110, height = 35)
 
         self.img1 = PhotoImage(file = f"img/img1.png")
@@ -232,7 +232,7 @@ class Window:
         self.text_algo = self.canvas.create_text(119.0, 257.5, text = self.algo.get(), fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.text_state = self.canvas.create_text(119.5, 305.5, text = self.state, fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
 
-        self.algorithm.draw_values(self.canvas_grid, self.space_width, self.space_height)
+        self.algorithm.draw_values()
 
 
     def destroy_main_window(self):
