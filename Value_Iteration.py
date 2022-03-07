@@ -31,8 +31,8 @@ class Value_Iteration:
             for y in range(self.window_size):
                 if self.grid[x,y] != 4:
                     self.canvas_grid.create_text(
-                        x * self.space_width + self.space_width / 1.4, 
-                        y * self.space_height + self.space_height / 3, 
+                        x * self.space_width + self.space_width / 4, 
+                        y * self.space_height + self.space_height / 1.4, 
                         text=str(self.state_values[x,y]), 
                         fill = "#000", 
                         font = ("RobotoRoman-Bold", int(self.space_width / 4)), 
