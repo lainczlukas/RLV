@@ -1,5 +1,6 @@
 from Policy_Iteration import Policy_Iteration
 from Value_Iteration import Value_Iteration
+from Enums import Actors
 
 from tkinter import *
 from PIL import ImageTk, Image
@@ -55,9 +56,9 @@ class Window:
 
     def destroy_intro_window(self):
         self.size = self.scale_size.get()
-        self.grid_values = np.zeros((self.size, self.size), int)
+        self.grid_actors = np.zeros((self.size, self.size), Actors)
 
-        if self.stochastic.get() == 0: 
+        if self.stochastic.get() == 0:
             self.state = "Deterministic"
         else:
             self.state = "Stochastic"
@@ -75,10 +76,10 @@ class Window:
         self.background_img = PhotoImage(file = f"img/background_main.png")
         self.background = self.canvas.create_image(613.5, 250.0, image=self.background_img)
 
-        self.options_items = ["Agent", "Goal", "Monster", "Obstacle"]
-        self.item = StringVar(self.window)
-        self.item.set("Choose Item")
-        self.dropdown = OptionMenu(self.window, self.item, *self.options_items)
+        self.options_actors = ["Agent", "Goal", "Monster", "Obstacle"]
+        self.actor = StringVar(self.window)
+        self.actor.set("Choose Actor")
+        self.dropdown = OptionMenu(self.window, self.actor, *self.options_actors)
         self.dropdown.config(width=15)
         self.dropdown.place(x = 60, y = 80)
 
@@ -127,84 +128,86 @@ class Window:
         x_pos = floor(event.x / self.space_height)
         y_pos = floor(event.y / self.space_width)
 
-        if self.item.get() == self.options_items[0]:
+        if self.actor.get() == self.options_actors[0]:
             self.canvas_grid.delete('agent')            
-            if self.grid_values[x_pos, y_pos] == 1:
-                self.grid_values[x_pos, y_pos] = 0                
+            if self.grid_actors[x_pos, y_pos] == Actors.agent:
+                self.grid_actors[x_pos, y_pos] = Actors.empty                
                 return
 
-            if self.grid_values[x_pos, y_pos] == 2:
+            if self.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
-            elif self.grid_values[x_pos, y_pos] == 3:
+            elif self.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-            elif self.grid_values[x_pos, y_pos] == 4:
+            elif self.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-            index = np.where(self.grid_values == 1)
+            index = np.where(self.grid_actors == Actors.agent)
             if len(index[0]) > 0:
-                self.grid_values[index[0][0], index[1][0]] = 0
-            self.grid_values[x_pos,y_pos] = 1
+                self.grid_actors[index[0][0], index[1][0]] = Actors.empty
+            self.grid_actors[x_pos,y_pos] = Actors.agent
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_agent, anchor=NW, tags='agent')    
         
-        if self.item.get() == self.options_items[1]:
+        if self.actor.get() == self.options_actors[1]:
             self.canvas_grid.delete('goal')   
-            if self.grid_values[x_pos, y_pos] == 2:
-                self.grid_values[x_pos, y_pos] = 0
+            if self.grid_actors[x_pos, y_pos] == Actors.goal:
+                self.grid_actors[x_pos, y_pos] = Actors.empty
                 return
             
-            if self.grid_values[x_pos, y_pos] == 1:
+            if self.grid_actors[x_pos, y_pos] == Actors.agent:
                 self.canvas_grid.delete('agent')
-            elif self.grid_values[x_pos, y_pos] == 3:
+            elif self.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-            elif self.grid_values[x_pos, y_pos] == 4:
+            elif self.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-            index = np.where(self.grid_values == 2)
+            index = np.where(self.grid_actors == Actors.goal)
             if len(index[0]) > 0:
-                self.grid_values[index[0][0], index[1][0]] = 0
-            self.grid_values[x_pos,y_pos] = 2
+                self.grid_actors[index[0][0], index[1][0]] = Actors.empty
+            self.grid_actors[x_pos,y_pos] = Actors.goal
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_goal, anchor=NW, tags='goal')
 
-        if self.item.get() == self.options_items[2]:
-            if self.grid_values[x_pos, y_pos] == 3:
+        if self.actor.get() == self.options_actors[2]:
+            if self.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-                self.grid_values[x_pos, y_pos] = 0
+                self.grid_actors[x_pos, y_pos] = Actors.empty
                 return
             
-            if self.grid_values[x_pos, y_pos] == 1:
+            if self.grid_actors[x_pos, y_pos] == Actors.agent:
                 self.canvas_grid.delete('agent')
-            elif self.grid_values[x_pos, y_pos] == 2:
+            elif self.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
-            elif self.grid_values[x_pos, y_pos] == 4:
+            elif self.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-            self.grid_values[x_pos,y_pos] = 3
+            self.grid_actors[x_pos,y_pos] = Actors.monster
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_monster, anchor=NW, tags='monster{}{}'.format(x_pos,y_pos))
 
-        if self.item.get() == self.options_items[3]:
-            if self.grid_values[x_pos, y_pos] == 4:
+        if self.actor.get() == self.options_actors[3]:
+            if self.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-                self.grid_values[x_pos, y_pos] = 0
+                self.grid_actors[x_pos, y_pos] = Actors.empty
                 return
             
-            if self.grid_values[x_pos, y_pos] == 1:
+            if self.grid_actors[x_pos, y_pos] == Actors.agent:
                 self.canvas_grid.delete('agent')
-            elif self.grid_values[x_pos, y_pos] == 2:
+            elif self.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
-            elif self.grid_values[x_pos, y_pos] == 3:
+            elif self.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-            self.grid_values[x_pos,y_pos] = 4
+            self.grid_actors[x_pos,y_pos] = Actors.obstacle
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_obstacle, anchor=NW, tags='obstacle{}{}'.format(x_pos,y_pos))
 
 
     def validate_setup_inputs(self):
-        if 1 in self.grid_values and 2 in self.grid_values:
+        if Actors.agent in self.grid_actors and Actors.goal in self.grid_actors:
             self.destroy_setup_window()
+        else:
+            print("Wrong Inputs")
 
 
     def destroy_setup_window(self):
         if self.algo.get() == self.options_algo[0]:
-            self.algorithm = Value_Iteration(self.size, self.grid_values, self.canvas_grid, self.space_width, self.space_height)
+            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height)
         
         if self.algo.get() == self.options_algo[1]:
-            self.algorithm = Policy_Iteration(self.size, self.grid_values, self.canvas_grid, self.space_width, self.space_height)
+            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height)
             pass
 
         self.canvas.delete(self.text_algo)
@@ -238,7 +241,7 @@ class Window:
         self.text_algo = self.canvas.create_text(119.0, 257.5, text = self.algo.get(), fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.text_state = self.canvas.create_text(119.5, 305.5, text = self.state, fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
 
-        self.algorithm.draw_values()
+        #self.algorithm.draw_values()
 
 
     def destroy_main_window(self):
