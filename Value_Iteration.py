@@ -28,7 +28,7 @@ class Value_Iteration:
     def step(self, step):
         delta = self.theta + 1.0
 
-        while delta > self.theta:
+        for _ in range(step):
             delta = 0.0
             for x in range(self.grid_size):
                 for y in range(self.grid_size):
@@ -40,14 +40,16 @@ class Value_Iteration:
                             action_values.append(action_value)                   
                         self.V[x, y] = max(action_values)
                         delta = max(delta, abs(prev_value - self.V[x, y]))
+            
+            if delta < self.theta:
+                self.calculate_policy()
+                return
         
         self.update_values()
-        self.calculate_policy()
 
 
     def calculate_policy(self):
         policy = np.full((self.grid_size, self.grid_size),-1 ,dtype=float)
-        print(self.grid_actors[0,1])
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if self.grid_actors[x,y] != Actors.obstacle and self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster:

@@ -228,13 +228,9 @@ class Window:
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = lambda: self.algorithm.step(self.scale_speed.get()), relief = "flat")
         self.b0.place(x = 64, y = 50, width = 110, height = 35)
 
-        self.img1 = PhotoImage(file = f"img/img1.png")
-        self.b1 = Button(image = self.img1, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
-        self.b1.place(x = 64, y = 347, width = 110, height = 35)
-
         self.img2 = PhotoImage(file = f"img/img2.png")
-        self.b2 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
-        self.b2.place(x = 19, y = 410, width = 200, height = 35)
+        self.b1 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
+        self.b1.place(x = 19, y = 410, width = 200, height = 35)
 
         self.text_speed = self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.text_gamma = self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
@@ -246,7 +242,6 @@ class Window:
         self.canvas.delete('all')
         self.b0.destroy()
         self.b1.destroy()
-        self.b2.destroy()
         self.canvas_grid.destroy()
         self.canvas_output.destroy()
         self.scale_gamma.destroy()
