@@ -108,7 +108,7 @@ class Window:
         img = img.resize((int(self.space_width / 2),int(self.space_height / 2)))
         self.img_monster = ImageTk.PhotoImage(img)
         img = Image.open("img/obstacle.png")
-        img = img.resize((int(self.space_width / 2),int(self.space_height / 2)))
+        img = img.resize((int(self.space_width),int(self.space_height)))
         self.img_obstacle = ImageTk.PhotoImage(img)
 
         self.canvas_grid.bind("<Button-1>", self.draw)
