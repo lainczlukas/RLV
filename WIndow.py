@@ -56,7 +56,7 @@ class Window:
 
     def destroy_intro_window(self):
         self.size = self.scale_size.get()
-        self.grid_actors = np.zeros((self.size, self.size), Actors)
+        self.grid_actors = np.full((self.size, self.size), Actors.empty, Actors)
 
         if self.stochastic.get() == 0:
             self.state = "Deterministic"

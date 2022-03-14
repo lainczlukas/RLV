@@ -40,8 +40,27 @@ class Value_Iteration:
                             action_values.append(action_value)                   
                         self.V[x, y] = max(action_values)
                         delta = max(delta, abs(prev_value - self.V[x, y]))
-
+        
         self.update_values()
+        self.calculate_policy()
+
+
+    def calculate_policy(self):
+        policy = np.full((self.grid_size, self.grid_size),-1 ,dtype=float)
+        print(self.grid_actors[0,1])
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                if self.grid_actors[x,y] != Actors.obstacle and self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster:
+                    best_action = 11.0
+                    for action in range(self.N_actions):
+                        action_value = sum([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])
+                        if best_action == 11.0 or action_value > best_action:
+                            best_action = action_value
+                            policy[x,y] = action
+
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                print("{}{} = {}".format(x,y,policy[x,y]))
 
 
     def update_values(self):
