@@ -241,8 +241,6 @@ class Window:
         self.text_algo = self.canvas.create_text(119.0, 257.5, text = self.algo.get(), fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.text_state = self.canvas.create_text(119.5, 305.5, text = self.state, fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
 
-        #self.algorithm.draw_values()
-
 
     def destroy_main_window(self):
         self.canvas.delete('all')

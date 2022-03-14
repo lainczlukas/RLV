@@ -11,16 +11,37 @@ class Value_Iteration:
         self.space_width = space_width
         self.space_height = space_height
         
+        self.reward_values = np.zeros((self.window_size, self.window_size), int)
+        self.state_values = np.zeros((self.window_size, self.window_size), int)
         self.draw_rewards()
+        self.draw_values()
+
+
+    def step(self, step):
+        for i in range(step):
+            print("lol")
+
+        self.draw_values()
+
+
+    def draw_values(self):
+        for x in range(self.window_size):
+            for y in range(self.window_size):
+                if self.grid_actors[x,y] != 4:
+                    self.canvas_grid.create_text(
+                        x * self.space_width + self.space_width / 1.4, 
+                        y * self.space_height + self.space_height / 4, 
+                        text=str(self.state_values[x,y]), 
+                        fill = "#000", 
+                        font = ("RobotoRoman-Bold", int(self.space_width / 7)), 
+                        tags='V{}{}'.format(x,y))
 
 
     def draw_rewards(self):
-        self.reward_values = np.zeros((self.window_size, self.window_size), int)
-
         for x in range(self.window_size):
             for y in range(self.window_size):
                 if self.grid_actors[x,y] == Actors.empty or self.grid_actors[x,y] == Actors.agent or self.grid_actors[x,y] == Actors.obstacle:
-                    self.reward_values[x,y] = 0
+                    self.reward_values[x,y] = -1
                     continue
 
                 if self.grid_actors[x,y] == Actors.goal:
@@ -33,31 +54,11 @@ class Value_Iteration:
 
         for x in range(self.window_size):
             for y in range(self.window_size):
-                if self.grid_actors[x,y] != 4:
+                if self.grid_actors[x,y] != Actors.obstacle:
                     self.canvas_grid.create_text(
-                        x * self.space_width + self.space_width / 4,
+                        x * self.space_width + self.space_width / 5,
                         y * self.space_height + self.space_height / 1.4,
-                        text="R={}".format(str(self.reward_values[x,y])),
+                        text=str(self.reward_values[x,y]),
                         fill = "#000",
                         font = ("RobotoRoman-Bold", int(self.space_width / 7)),
                         tags='R{}{}'.format(x,y))
-
-
-    # def draw_values(self):
-    #     for x in range(self.window_size):
-    #         for y in range(self.window_size):
-    #             if self.grid_actors[x,y] != 4:
-    #                 self.canvas_grid.create_text(
-    #                     x * self.space_width + self.space_width / 4, 
-    #                     y * self.space_height + self.space_height / 1.4, 
-    #                     text=str(self.state_values[x,y]), 
-    #                     fill = "#000", 
-    #                     font = ("RobotoRoman-Bold", int(self.space_width / 4)), 
-    #                     tags='V{}{}'.format(x,y))
-
-    
-    def step(self, step):
-        for i in range(step):
-            print("lol")
-
-        #self.draw_values()
