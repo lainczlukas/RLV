@@ -42,6 +42,7 @@ class Value_Iteration:
                         delta = max(delta, abs(prev_value - self.V[x, y]))
             
             if delta < self.theta:
+                self.update_values()
                 self.calculate_policy()
                 return
         

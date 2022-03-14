@@ -223,6 +223,7 @@ class Window:
 
         self.scale_gamma = Scale(from_=0, to=1, orient=HORIZONTAL, length=70, resolution=0.05, bg = "#E4E4E4")
         self.scale_gamma.place(x = 117, y = 180)
+        self.scale_gamma.set(0.8)
 
         self.img0 = PhotoImage(file = f"img/img0.png")
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = lambda: self.algorithm.step(self.scale_speed.get()), relief = "flat")
@@ -234,8 +235,14 @@ class Window:
 
         self.text_speed = self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.text_gamma = self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.text_algo = self.canvas.create_text(119.0, 257.5, text = self.algo.get(), fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.text_state = self.canvas.create_text(119.5, 305.5, text = self.state, fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
+
+        self.canvas.create_rectangle(44, 240, 194, 390, fill="#C0C781")
+        self.canvas_help = Canvas(self.canvas, bg = "#E4E4E4", height=130, width=130, bd = 0, highlightthickness = 0, relief = "ridge")
+        self.canvas_help.place(x = 54, y = 250)
+        self.canvas_help.create_text(30, 30, text = "Item", fill = "#000", font = ("RobotoRoman-Bold", 15))
+        self.canvas_help.create_text(90, 30, text = "V(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
+        self.canvas_help.create_text(30, 90, text = "R(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
+        self.canvas_help.create_text(90, 90, text = "Policy", fill = "#000", font = ("RobotoRoman-Bold", 14))
 
 
     def destroy_main_window(self):
@@ -244,6 +251,7 @@ class Window:
         self.b1.destroy()
         self.canvas_grid.destroy()
         self.canvas_output.destroy()
+        self.canvas_help.destroy()
         self.scale_gamma.destroy()
         self.scale_speed.destroy()
         self.show_intro_window()
