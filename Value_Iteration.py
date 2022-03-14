@@ -11,8 +11,8 @@ class Value_Iteration:
         self.space_width = space_width
         self.space_height = space_height
         
-        self.R = np.zeros((self.grid_size, self.grid_size), int)
-        self.V = np.zeros((self.grid_size, self.grid_size), int)
+        self.R = np.full((self.grid_size, self.grid_size), -1.0)
+        self.V = np.zeros((self.grid_size, self.grid_size), float)
         self.draw_rewards()
         self.draw_values()
 
@@ -27,25 +27,29 @@ class Value_Iteration:
 
     def step(self, step):
         delta = self.theta + 1.0
-        count = 0
 
         while delta > self.theta:
             delta = 0.0
-            print("Iteration {}".format(count))
-            count += 1
             for x in range(self.grid_size):
                 for y in range(self.grid_size):
                     if self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster:
                         prev_value = self.V[x,y]
                         action_values = list()
                         for action in range(self.N_actions):
-                            action_value = sum([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x, y]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])
-                            action_values.append(action_value)
-                            print("S{}{}, action {}: {}".format(x, y, action, action_value))                    
+                            action_value = sum([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])
+                            action_values.append(action_value)                   
                         self.V[x, y] = max(action_values)
                         delta = max(delta, abs(prev_value - self.V[x, y]))
 
         self.update_values()
+
+
+    def update_values(self):
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                if self.grid_actors[x,y] != Actors.obstacle:
+                    text = self.canvas_grid.find_withtag('V{}{}'.format(x,y))
+                    self.canvas_grid.itemconfig(text, text=str(round(self.V[x,y], 2)))
 
 
     def set_transitions(self):
@@ -54,32 +58,24 @@ class Value_Iteration:
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                    self.P[x, y, 0, x, y-1] = 1
+                    self.P[x, y, 0, x, y-1] = 1.0
                 else:
-                    self.P[x, y, 0, x, y] = 1
+                    self.P[x, y, 0, x, y] = 1.0
 
                 if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                    self.P[x, y, 1, x+1, y] = 1
+                    self.P[x, y, 1, x+1, y] = 1.0
                 else:
-                    self.P[x, y, 1, x, y] = 1
+                    self.P[x, y, 1, x, y] = 1.0
 
                 if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                    self.P[x, y, 2, x, y+1] = 1
+                    self.P[x, y, 2, x, y+1] = 1.0
                 else:
-                    self.P[x, y, 2, x, y] = 1
+                    self.P[x, y, 2, x, y] = 1.0
 
                 if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                    self.P[x, y, 3, x-1, y] = 1
+                    self.P[x, y, 3, x-1, y] = 1.0
                 else:
-                    self.P[x, y, 3, x, y] = 1
-
-
-    def update_values(self):
-        for x in range(self.grid_size):
-            for y in range(self.grid_size):
-                if self.grid_actors[x,y] != Actors.obstacle:
-                    text = self.canvas_grid.find_withtag('V{}{}'.format(x,y))
-                    self.canvas_grid.itemconfig(text, text=str(self.V[x,y]))
+                    self.P[x, y, 3, x, y] = 1.0
 
 
     def draw_values(self):
@@ -98,17 +94,11 @@ class Value_Iteration:
     def draw_rewards(self):
         for x in range(self.grid_size):
             for y in range(self.grid_size):
-                if self.grid_actors[x,y] == Actors.empty or self.grid_actors[x,y] == Actors.agent or self.grid_actors[x,y] == Actors.obstacle:
-                    self.R[x,y] = -1
-                    continue
-
                 if self.grid_actors[x,y] == Actors.goal:
                     self.R[x,y] = 10
-                    continue
 
                 if self.grid_actors[x,y] == Actors.monster:
                     self.R[x,y] = -10
-                    continue
 
         for x in range(self.grid_size):
             for y in range(self.grid_size):
