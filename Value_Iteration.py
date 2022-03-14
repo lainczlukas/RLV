@@ -57,10 +57,18 @@ class Value_Iteration:
                         if best_action == 11.0 or action_value > best_action:
                             best_action = action_value
                             policy[x,y] = action
-
+        
+        direction = {0: "N", 1: "E", 2: "S", 3:"W"}
         for x in range(self.grid_size):
             for y in range(self.grid_size):
-                print("{}{} = {}".format(x,y,policy[x,y]))
+                if self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster and self.grid_actors[x,y] != Actors.obstacle:
+                    self.canvas_grid.create_text(
+                        x * self.space_width + self.space_width / 1.4, 
+                        y * self.space_height + self.space_height / 1.4, 
+                        text=direction[policy[x,y]], 
+                        fill = "#000", 
+                        font = ("RobotoRoman-Bold", int(self.space_width / 7)),
+                        tags='V{}{}'.format(x,y))
 
 
     def update_values(self):
@@ -76,21 +84,22 @@ class Value_Iteration:
 
         for x in range(self.grid_size):
             for y in range(self.grid_size):
+                #North
                 if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
                     self.P[x, y, 0, x, y-1] = 1.0
                 else:
                     self.P[x, y, 0, x, y] = 1.0
-
+                #east
                 if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
                     self.P[x, y, 1, x+1, y] = 1.0
                 else:
                     self.P[x, y, 1, x, y] = 1.0
-
+                #south
                 if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
                     self.P[x, y, 2, x, y+1] = 1.0
                 else:
                     self.P[x, y, 2, x, y] = 1.0
-
+                #west
                 if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
                     self.P[x, y, 3, x-1, y] = 1.0
                 else:

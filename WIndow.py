@@ -131,7 +131,7 @@ class Window:
         if self.actor.get() == self.options_actors[0]:
             self.canvas_grid.delete('agent')            
             if self.grid_actors[x_pos, y_pos] == Actors.agent:
-                self.grid_actors[x_pos, y_pos] = Actors.empty                
+                self.grid_actors[x_pos, y_pos] = Actors.empty        
                 return
 
             if self.grid_actors[x_pos, y_pos] == Actors.goal:
@@ -144,7 +144,7 @@ class Window:
             if len(index[0]) > 0:
                 self.grid_actors[index[0][0], index[1][0]] = Actors.empty
             self.grid_actors[x_pos,y_pos] = Actors.agent
-            self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_agent, anchor=NW, tags='agent')    
+            self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
         
         if self.actor.get() == self.options_actors[1]:
             self.canvas_grid.delete('goal')   
