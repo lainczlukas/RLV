@@ -85,7 +85,7 @@ class Value_Iteration:
 
     def set_transitions(self):
         self.P = np.zeros((self.grid_size, self.grid_size, self.N_actions, self.grid_size, self.grid_size))
-        fraction = 0.1
+        fraction = 0.2
 
         if (self.stochastic == 1):
             for x in range(self.grid_size):
@@ -195,10 +195,10 @@ class Value_Iteration:
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if self.grid_actors[x,y] == Actors.goal:
-                    self.R[x,y] = 10
+                    self.R[x,y] = 80
 
                 if self.grid_actors[x,y] == Actors.monster:
-                    self.R[x,y] = -10
+                    self.R[x,y] = -80
 
         for x in range(self.grid_size):
             for y in range(self.grid_size):

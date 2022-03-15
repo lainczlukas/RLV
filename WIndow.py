@@ -5,8 +5,12 @@ from Enums import Actors
 from tkinter import *
 from PIL import ImageTk, Image
 import numpy as np
+import sympy as sp
+#import matplotlib.pyplot as plt   
 
 from math import floor
+
+
 
 
 class Window:
@@ -17,7 +21,6 @@ class Window:
         self.window.title("Reinforcement Learning Visualizator")
         self.window.iconbitmap("img/icon.ico")
         self.window.resizable(False, False)
-
         self.canvas = Canvas(
             self.window,
             bg = "#2a2b2a",
@@ -258,6 +261,10 @@ class Window:
 
 
 if __name__ == "__main__":
+    # x = sp.symbols("x")
+    # expr = sp.sin(sp.sqrt(x**2 + 20)) + 1
+    # sp.preview(expr, viewer='file', filename='output.png')
+
     my_window = Window()
 
     my_window.window.mainloop()
