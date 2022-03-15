@@ -204,10 +204,10 @@ class Window:
 
     def destroy_setup_window(self):
         if self.algo.get() == self.options_algo[0]:
-            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height)
+            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.stochastic.get())
         
         if self.algo.get() == self.options_algo[1]:
-            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height)
+            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.stochastic.get())
             pass
 
         self.canvas.delete(self.text_algo)
