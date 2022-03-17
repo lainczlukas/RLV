@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from Policy_Iteration import Policy_Iteration
 from Value_Iteration import Value_Iteration
 from Enums import Actors
@@ -109,7 +110,11 @@ class Window:
         self.canvas_grid.place(x = 284, y = 50)
 
         self.draw_grid()
-        
+        self.load_images()
+        self.canvas_grid.bind("<Button-1>", self.draw)
+    
+
+    def load_images(self):
         img = Image.open("img/agent.png")
         img = img.resize((int(self.space_width / 2),int(self.space_height / 2)))
         self.img_agent = ImageTk.PhotoImage(img)
@@ -123,8 +128,6 @@ class Window:
         img = img.resize((int(self.space_width),int(self.space_height)))
         self.img_obstacle = ImageTk.PhotoImage(img)
 
-        self.canvas_grid.bind("<Button-1>", self.draw)
-        
 
     def draw_grid(self):
         self.window.update()
@@ -215,19 +218,58 @@ class Window:
 
     def save_environment(self):
         f = filedialog.asksaveasfile(defaultextension=' .txt', filetypes=[("Text file", '.txt')])
-        f.write(str(self.size))
+
+        if f is None:
+            return
+
+        f.write(str(self.size) + '\n')
+
 
         for x in range(self.size):
             row = ""
             for y in range(self.size):
                 row += str(Actors(self.grid_actors[x,y]).value)
-            f.write(row)
+            f.write(row + '\n')
 
         f.close()
 
 
     def load_environment(self):
-        print("load")
+        path = filedialog.askopenfilename(filetypes= (("Text file","*.txt"), ("All files","*.*")))
+        
+        if path is None:
+            return
+
+        f = open(path, 'r')
+
+        data = f.readline()
+        self.size = int(data)
+        self.canvas_grid.delete('all')
+        self.draw_grid()
+        self.grid_actors = np.full((self.size, self.size), Actors.empty, Actors)
+
+        for x in range(self.size):
+            data = f.readline()
+            for y in range(self.size):
+                self.grid_actors[x,y] = Actors(int(data[y]))
+        
+        self.load_images()        
+        self.draw_actors()
+
+        f.close()
+
+    
+    def draw_actors(self):
+        for x in range(self.size):
+            for y in range(self.size):
+                if self.grid_actors[x,y] == Actors.agent:
+                    self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
+                elif self.grid_actors[x,y] == Actors.goal:
+                    self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_goal, anchor=NW, tags='goal')
+                elif self.grid_actors[x,y] == Actors.monster:
+                    self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_monster, anchor=NW, tags='monster{}{}'.format(x,y))
+                elif self.grid_actors[x,y] == Actors.obstacle:
+                    self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_obstacle, anchor=NW, tags='obstacle{}{}'.format(x,y))
 
 
     def destroy_setup_window(self):
