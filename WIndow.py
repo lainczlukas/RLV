@@ -3,6 +3,7 @@ from Value_Iteration import Value_Iteration
 from Enums import Actors
 
 from tkinter import *
+from tkinter import filedialog
 from PIL import ImageTk, Image
 import numpy as np
 import sympy as sp
@@ -91,7 +92,15 @@ class Window:
 
         self.img0 = PhotoImage(file = f"img/img4.png")
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command=self.validate_setup_inputs, relief = "flat")
-        self.b0.place(x = 20, y = 319, width = 197, height = 35)
+        self.b0.place(x = 20, y = 425, width = 197, height = 35)
+
+        self.img1 = PhotoImage(file = f"img/img1.png")
+        self.b1 = Button(image = self.img1, borderwidth = 0, highlightthickness = 0, command=self.save_environment, relief = "flat")
+        self.b1.place(x = 20, y = 373, width = 197, height = 35)
+
+        self.img2 = PhotoImage(file = f"img/img5.png")
+        self.b2 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command=self.load_environment, relief = "flat")
+        self.b2.place(x = 20, y = 321, width = 197, height = 35)
 
         self.canvas_output = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_output.place(x = 729, y = 50)
@@ -203,6 +212,13 @@ class Window:
             self.destroy_setup_window()
         else:
             print("Wrong Inputs")
+
+    def save_environment(self):
+        #f = filedialog.asksaveasfile
+        print("save")
+
+    def load_environment(self):
+        print("load")
 
 
     def destroy_setup_window(self):

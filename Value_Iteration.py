@@ -12,7 +12,7 @@ class Value_Iteration:
         self.space_height = space_height
         self.stochastic = stochastic
         
-        self.R = np.full((self.grid_size, self.grid_size), -1.0)
+        self.R = np.full((self.grid_size, self.grid_size), -0.1)
         self.V = np.zeros((self.grid_size, self.grid_size), float)
         self.draw_rewards()
         self.draw_values()
@@ -85,7 +85,7 @@ class Value_Iteration:
 
     def set_transitions(self):
         self.P = np.zeros((self.grid_size, self.grid_size, self.N_actions, self.grid_size, self.grid_size))
-        fraction = 0.2
+        fraction = 0.1
 
         if (self.stochastic == 1):
             for x in range(self.grid_size):
@@ -195,10 +195,10 @@ class Value_Iteration:
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if self.grid_actors[x,y] == Actors.goal:
-                    self.R[x,y] = 80
+                    self.R[x,y] = 999999999
 
                 if self.grid_actors[x,y] == Actors.monster:
-                    self.R[x,y] = -80
+                    self.R[x,y] = -200
 
         for x in range(self.grid_size):
             for y in range(self.grid_size):
