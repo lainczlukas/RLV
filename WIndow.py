@@ -214,8 +214,17 @@ class Window:
             print("Wrong Inputs")
 
     def save_environment(self):
-        #f = filedialog.asksaveasfile
-        print("save")
+        f = filedialog.asksaveasfile(defaultextension=' .txt', filetypes=[("Text file", '.txt')])
+        f.write(str(self.size))
+
+        for x in range(self.size):
+            row = ""
+            for y in range(self.size):
+                row += str(Actors(self.grid_actors[x,y]).value)
+            f.write(row)
+
+        f.close()
+
 
     def load_environment(self):
         print("load")
