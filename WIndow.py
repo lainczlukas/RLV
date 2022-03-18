@@ -79,15 +79,15 @@ class Window:
 
 
     def show_setup_window(self):
-        self.background_img = PhotoImage(file = f"img/background_main.png")
-        self.background = self.canvas.create_image(613.5, 250.0, image=self.background_img)
+        self.background_img = PhotoImage(file = f"img/background_setup.png")
+        self.background = self.canvas.create_image(466.5, 250.0, image=self.background_img)
 
-        self.options_actors = ["Agent", "Goal", "Monster", "Obstacle"]
+        self.options_actors = ["Agent", "Goal", "Monster", "Obstacle", "Change reward"]
         self.actor = StringVar(self.window)
         self.actor.set("Choose Actor")
         self.dropdown = OptionMenu(self.window, self.actor, *self.options_actors)
         self.dropdown.config(width=15)
-        self.dropdown.place(x = 60, y = 80)
+        self.dropdown.place(x = 50, y = 80)
 
         self.img0 = PhotoImage(file = f"img/img4.png")
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command=self.validate_setup_inputs, relief = "flat")
@@ -101,8 +101,14 @@ class Window:
         self.b2 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command=self.load_environment, relief = "flat")
         self.b2.place(x = 20, y = 321, width = 197, height = 35)
 
-        self.canvas_output = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
-        self.canvas_output.place(x = 729, y = 50)
+        self.scale_reward = Scale(from_=-99, to=999, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
+        self.scale_reward.place(x = 780, y = 250)
+
+        self.img3 = PhotoImage(file = f"img/img6.png")
+        self.b3 = Button(image = self.img3, borderwidth = 0, highlightthickness = 0, command= self.validate_change_revard, relief = "flat")
+        self.b3.place(x = 760, y = 321, width = 197, height = 35)
+
+        self.myTip = Hovertip(self.b3,'Choose \"Change reward\" from options \n click on a desired state \n and choose new reward value', hover_delay=0)        
 
         self.canvas_grid = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=400, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_grid.place(x = 284, y = 50)
@@ -122,7 +128,17 @@ class Window:
         self.draw_grid()
         self.load_images()
         self.canvas_grid.bind("<Button-1>", self.draw)
+
+        self.x_change_R = None
+        self.y_change_R = None
     
+    def validate_change_revard(self):
+        if self.x_change_R != None and self.y_change_R != None:
+            self.update_reward(self.scale_reward.get(), self.x_change_R, self.y_change_R)
+        else:
+            print("wrong boiii")
+
+
 
     def load_images(self):
         img = Image.open("img/agent.png")
@@ -235,6 +251,11 @@ class Window:
             text = self.canvas_grid.find_withtag('R{}{}'.format(x_pos,y_pos))
             self.canvas_grid.itemconfig(text, text="")
 
+        if self.actor.get() == self.options_actors[4]:
+            self.x_change_R = x_pos
+            self.y_change_R = y_pos
+
+
     def validate_setup_inputs(self):
         if Actors.agent in self.grid_actors and Actors.goal in self.grid_actors:
             self.destroy_setup_window()
@@ -268,7 +289,7 @@ class Window:
     def load_environment(self):
         path = filedialog.askopenfilename(filetypes= (("Text file","*.txt"), ("All files","*.*")))
         
-        if path is None:
+        if path is None or path == '':
             return
 
         f = open(path, 'r')
@@ -318,6 +339,7 @@ class Window:
         self.b0.destroy()
         self.b1.destroy()
         self.b2.destroy()
+        self.b3.destroy()
         self.dropdown.destroy()
         self.canvas.delete('helperBg')
         self.canvas.create_rectangle(44, 240, 194, 390, fill="#C0C781", tags='helperBg')
@@ -347,6 +369,9 @@ class Window:
         self.img2 = PhotoImage(file = f"img/img2.png")
         self.b1 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
         self.b1.place(x = 19, y = 410, width = 200, height = 35)
+
+        self.canvas_output = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
+        self.canvas_output.place(x = 729, y = 50)
 
         self.text_speed = self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.text_gamma = self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
