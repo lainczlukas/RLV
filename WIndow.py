@@ -65,7 +65,6 @@ class Window:
 
     def destroy_intro_window(self):
         self.size = self.scale_size.get()
-        self.grid_actors = np.full((self.size, self.size), Actors.empty, Actors)
 
         self.canvas.delete('all')
         self.b0.destroy()
@@ -90,8 +89,6 @@ class Window:
         self.dropdown.config(width=15)
         self.dropdown.place(x = 60, y = 80)
 
-        self.text_algo = self.canvas.create_text(119.0, 217.5, text = self.algo.get(), fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-
         self.img0 = PhotoImage(file = f"img/img4.png")
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command=self.validate_setup_inputs, relief = "flat")
         self.b0.place(x = 20, y = 425, width = 197, height = 35)
@@ -109,6 +106,18 @@ class Window:
 
         self.canvas_grid = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=400, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_grid.place(x = 284, y = 50)
+
+        self.canvas.create_rectangle(44, 140, 194, 290, fill="#C0C781", tags='helperBg')
+        self.canvas_help = Canvas(self.canvas, bg = "#E4E4E4", height=130, width=130, bd = 0, highlightthickness = 0, relief = "ridge")
+        self.canvas_help.place(x = 54, y = 150)
+        self.canvas_help.create_text(30, 30, text = "Item", fill = "#000", font = ("RobotoRoman-Bold", 15))
+        self.canvas_help.create_text(90, 30, text = "V(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
+        self.canvas_help.create_text(30, 90, text = "R(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
+        self.canvas_help.create_text(90, 90, text = "Policy", fill = "#000", font = ("RobotoRoman-Bold", 14))
+
+        self.window.update()
+        self.space_height = self.canvas_grid.winfo_height() / self.size
+        self.space_width = self.canvas_grid.winfo_width() / self.size
 
         self.draw_grid()
         self.load_images()
@@ -139,6 +148,11 @@ class Window:
             self.canvas_grid.create_line(0, self.space_height*i, self.canvas_grid.winfo_width(), self.space_height*i)
             self.canvas_grid.create_line(self.space_width*i, 0, self.space_width*i, self.canvas_grid.winfo_height())
 
+        self.grid_actors = np.full((self.size, self.size), Actors.empty, Actors)
+        self.R = np.full((self.size, self.size), -1)
+        self.draw_rewards()
+        
+
 
     def draw(self, event):
         x_pos = floor(event.x / self.space_height)
@@ -152,10 +166,13 @@ class Window:
 
             if self.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
+                self.update_reward(-1, x_pos, y_pos)
             elif self.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
+                self.update_reward(-1, x_pos, y_pos)
             elif self.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
+                self.update_reward(-1, x_pos, y_pos)
             index = np.where(self.grid_actors == Actors.agent)
             if len(index[0]) > 0:
                 self.grid_actors[index[0][0], index[1][0]] = Actors.empty
@@ -163,9 +180,10 @@ class Window:
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
         
         if self.actor.get() == self.options_actors[1]:
-            self.canvas_grid.delete('goal')   
+            self.canvas_grid.delete('goal')  
             if self.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.grid_actors[x_pos, y_pos] = Actors.empty
+                self.update_reward(-1, x_pos, y_pos)
                 return
             
             if self.grid_actors[x_pos, y_pos] == Actors.agent:
@@ -177,13 +195,16 @@ class Window:
             index = np.where(self.grid_actors == Actors.goal)
             if len(index[0]) > 0:
                 self.grid_actors[index[0][0], index[1][0]] = Actors.empty
+                self.update_reward(-1, index[0][0], index[1][0])
             self.grid_actors[x_pos,y_pos] = Actors.goal
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_goal, anchor=NW, tags='goal')
+            self.update_reward(99, x_pos, y_pos)
 
         if self.actor.get() == self.options_actors[2]:
             if self.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
                 self.grid_actors[x_pos, y_pos] = Actors.empty
+                self.update_reward(-1, x_pos, y_pos)   
                 return
             
             if self.grid_actors[x_pos, y_pos] == Actors.agent:
@@ -194,22 +215,25 @@ class Window:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
             self.grid_actors[x_pos,y_pos] = Actors.monster
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_monster, anchor=NW, tags='monster{}{}'.format(x_pos,y_pos))
+            self.update_reward(-20, x_pos, y_pos)
 
         if self.actor.get() == self.options_actors[3]:
             if self.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
                 self.grid_actors[x_pos, y_pos] = Actors.empty
+                self.update_reward(-1, x_pos, y_pos)
                 return
             
             if self.grid_actors[x_pos, y_pos] == Actors.agent:
-                self.canvas_grid.delete('agent')
+                self.canvas_grid.delete('agent')  
             elif self.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
             elif self.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
             self.grid_actors[x_pos,y_pos] = Actors.obstacle
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_obstacle, anchor=NW, tags='obstacle{}{}'.format(x_pos,y_pos))
-
+            text = self.canvas_grid.find_withtag('R{}{}'.format(x_pos,y_pos))
+            self.canvas_grid.itemconfig(text, text="")
 
     def validate_setup_inputs(self):
         if Actors.agent in self.grid_actors and Actors.goal in self.grid_actors:
@@ -225,12 +249,18 @@ class Window:
 
         f.write(str(self.size) + '\n')
 
-
         for x in range(self.size):
             row = ""
             for y in range(self.size):
                 row += str(Actors(self.grid_actors[x,y]).value)
             f.write(row + '\n')
+
+        for x in range(self.size):
+            row = ""
+            for y in range(self.size):
+                row += str(self.R[x,y])
+                row += ','
+            f.write(row + '\n')    
 
         f.close()
 
@@ -253,6 +283,17 @@ class Window:
             data = f.readline()
             for y in range(self.size):
                 self.grid_actors[x,y] = Actors(int(data[y]))
+
+        for x in range(self.size):
+            data = f.readline().split(',')
+            for y in range(self.size):
+                self.R[x,y] = int(data[y])
+                if self.grid_actors[x,y] == Actors.obstacle:
+                    text = self.canvas_grid.find_withtag('R{}{}'.format(x,y))
+                    self.canvas_grid.itemconfig(text, text="")
+                else:
+                    self.update_reward(self.R[x,y], x, y)
+
         
         self.load_images()        
         self.draw_actors()
@@ -274,22 +315,24 @@ class Window:
 
 
     def destroy_setup_window(self):
-        if self.algo.get() == self.options_algo[0]:
-            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.determinism)
-        
-        if self.algo.get() == self.options_algo[1]:
-            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.determinism)
-            pass
-
-        self.canvas.delete(self.text_algo)
         self.b0.destroy()
         self.b1.destroy()
         self.b2.destroy()
         self.dropdown.destroy()
+        self.canvas.delete('helperBg')
+        self.canvas.create_rectangle(44, 240, 194, 390, fill="#C0C781", tags='helperBg')
+        self.canvas_help.place(x = 54, y = 250)
         self.show_main_window()
 
 
     def show_main_window(self):
+        if self.algo.get() == self.options_algo[0]:
+            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.determinism, self.R)
+        
+        if self.algo.get() == self.options_algo[1]:
+            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.determinism, self.R)
+            pass
+
         self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_speed.place(x = 117, y = 115)
 
@@ -308,13 +351,7 @@ class Window:
         self.text_speed = self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.text_gamma = self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
 
-        self.canvas.create_rectangle(44, 240, 194, 390, fill="#C0C781")
-        self.canvas_help = Canvas(self.canvas, bg = "#E4E4E4", height=130, width=130, bd = 0, highlightthickness = 0, relief = "ridge")
-        self.canvas_help.place(x = 54, y = 250)
-        self.canvas_help.create_text(30, 30, text = "Item", fill = "#000", font = ("RobotoRoman-Bold", 15))
-        self.canvas_help.create_text(90, 30, text = "V(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
-        self.canvas_help.create_text(30, 90, text = "R(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
-        self.canvas_help.create_text(90, 90, text = "Policy", fill = "#000", font = ("RobotoRoman-Bold", 14))
+        self.algorithm.draw_values()
 
 
     def destroy_main_window(self):
@@ -327,6 +364,24 @@ class Window:
         self.scale_gamma.destroy()
         self.scale_speed.destroy()
         self.show_intro_window()
+
+    def draw_rewards(self):
+        for x in range(self.size):
+            for y in range(self.size):
+                if self.grid_actors[x,y] != Actors.obstacle:
+                    self.canvas_grid.create_text(
+                        x * self.space_width + self.space_width / 5,
+                        y * self.space_height + self.space_height / 1.4,
+                        text=str(self.R[x,y]),
+                        fill = "#000",
+                        font = ("RobotoRoman-Bold", int(self.space_width / 7)),
+                        tags='R{}{}'.format(x,y))
+
+    
+    def update_reward(self, reward, x, y):
+        text = self.canvas_grid.find_withtag('R{}{}'.format(x,y))
+        self.canvas_grid.itemconfig(text, text=str(round(reward, 2)))
+        self.R[x,y] = reward
 
 
 if __name__ == "__main__":

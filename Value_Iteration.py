@@ -1,21 +1,19 @@
 import numpy as np
-from tkinter import W, Canvas
+from tkinter import Canvas
 
 from Enums import Actors
 
 class Value_Iteration:   
-    def __init__(self, grid_size, grid_actors, canvas_grid: Canvas, space_width, space_height, determinism):
+    def __init__(self, grid_size, grid_actors, canvas_grid: Canvas, space_width, space_height, determinism, R):
         self.grid_size = grid_size
         self.grid_actors = grid_actors
         self.canvas_grid = canvas_grid
         self.space_width = space_width
         self.space_height = space_height
         self.determinism = determinism
+        self.R = R
         
-        self.R = np.full((self.grid_size, self.grid_size), -1.0)
         self.V = np.zeros((self.grid_size, self.grid_size), float)
-        self.draw_rewards()
-        self.draw_values()
 
         self.A = [0, 1, 2, 3]
         self.N_actions = len(self.A)
@@ -194,22 +192,3 @@ class Value_Iteration:
                         tags='V{}{}'.format(x,y))
 
 
-    def draw_rewards(self):
-        for x in range(self.grid_size):
-            for y in range(self.grid_size):
-                if self.grid_actors[x,y] == Actors.goal:
-                    self.R[x,y] = 99
-
-                if self.grid_actors[x,y] == Actors.monster:
-                    self.R[x,y] = -20
-
-        for x in range(self.grid_size):
-            for y in range(self.grid_size):
-                if self.grid_actors[x,y] != Actors.obstacle:
-                    self.canvas_grid.create_text(
-                        x * self.space_width + self.space_width / 5,
-                        y * self.space_height + self.space_height / 1.4,
-                        text=str(self.R[x,y]),
-                        fill = "#000",
-                        font = ("RobotoRoman-Bold", int(self.space_width / 7)),
-                        tags='R{}{}'.format(x,y))
