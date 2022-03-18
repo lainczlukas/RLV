@@ -1,18 +1,18 @@
 import numpy as np
-from tkinter import Canvas
+from tkinter import W, Canvas
 
 from Enums import Actors
 
 class Value_Iteration:   
-    def __init__(self, grid_size, grid_actors, canvas_grid: Canvas, space_width, space_height, stochastic):
+    def __init__(self, grid_size, grid_actors, canvas_grid: Canvas, space_width, space_height, determinism):
         self.grid_size = grid_size
         self.grid_actors = grid_actors
         self.canvas_grid = canvas_grid
         self.space_width = space_width
         self.space_height = space_height
-        self.stochastic = stochastic
+        self.determinism = determinism
         
-        self.R = np.full((self.grid_size, self.grid_size), -0.1)
+        self.R = np.full((self.grid_size, self.grid_size), -1.0)
         self.V = np.zeros((self.grid_size, self.grid_size), float)
         self.draw_rewards()
         self.draw_values()
@@ -85,97 +85,100 @@ class Value_Iteration:
 
     def set_transitions(self):
         self.P = np.zeros((self.grid_size, self.grid_size, self.N_actions, self.grid_size, self.grid_size))
-        fraction = 0.1
 
-        if (self.stochastic == 1):
-            for x in range(self.grid_size):
-                for y in range(self.grid_size):
-                    #North
-                    counter = 0.0
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                            self.P[x, y, 0, x, y+1] = fraction
-                            counter += fraction
-                        if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                            self.P[x, y, 0, x+1, y] = fraction
-                            counter += fraction
-                        if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                            self.P[x, y, 0, x-1, y] = fraction
-                            counter += fraction
-                        self.P[x, y, 0, x, y-1] = 1.0 - counter
-                    else:
-                        self.P[x, y, 0, x, y] = 1.0
-                    
-                    #East
-                    counter = 0.0
-                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                            self.P[x, y, 1, x, y-1] = fraction
-                            counter += fraction
-                        if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                            self.P[x, y, 1, x, y+1] = fraction
-                            counter += fraction
-                        if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                            self.P[x, y, 1, x-1, y] = fraction
-                            counter += fraction
-                        self.P[x, y, 1, x+1, y] = 1.0 - counter
-                    else:
-                        self.P[x, y, 1, x, y] = 1.0
-                    
-                    #South
-                    counter = 0.0
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                #North
+                counter = 0
+                if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+                    self.P[x, y, 0, x, y-1] = self.determinism
+
                     if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                            self.P[x, y, 2, x, y-1] = fraction
-                            counter += fraction
-                        if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                            self.P[x, y, 2, x+1, y] = fraction
-                            counter += fraction
-                        if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                            self.P[x, y, 2, x-1, y] = fraction
-                            counter += fraction
-                        self.P[x, y, 2, x, y+1] = 1.0 - counter
-                    else:
-                        self.P[x, y, 2, x, y] = 1.0
-                    
-                    #West
-                    counter = 0.0
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                            self.P[x, y, 3, x, y-1] = fraction
-                            counter += fraction
-                        if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                            self.P[x, y, 3, x+1, y] = fraction
-                            counter += fraction
-                        if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                            self.P[x, y, 3, x, y+1] = fraction
-                            counter += fraction
-                        self.P[x, y, 3, x-1, y] = 1.0 - counter
-                    else:
-                        self.P[x, y, 3, x, y] = 1.0
-        else:
-            for x in range(self.grid_size):
-                for y in range(self.grid_size):
-                    #North
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        self.P[x, y, 0, x, y-1] = 1.0
-                    else:
-                        self.P[x, y, 0, x, y] = 1.0
-                    #east
+                        counter += 1
                     if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        self.P[x, y, 1, x+1, y] = 1.0
-                    else:
-                        self.P[x, y, 1, x, y] = 1.0
-                    #south
-                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        self.P[x, y, 2, x, y+1] = 1.0
-                    else:
-                        self.P[x, y, 2, x, y] = 1.0
-                    #west
+                        counter += 1
                     if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        self.P[x, y, 3, x-1, y] = 1.0
-                    else:
-                        self.P[x, y, 3, x, y] = 1.0
+                        counter += 1
+                    
+                    wrong_way_probability = (1 - self.determinism) / counter
+
+                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
+                        self.P[x, y, 0, x, y+1] = wrong_way_probability
+                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+                        self.P[x, y, 0, x+1, y] = wrong_way_probability
+                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
+                        self.P[x, y, 0, x-1, y] = wrong_way_probability
+                else:
+                    self.P[x, y, 0, x, y] = 1.0
+
+                #East
+                counter = 0
+                if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+                    self.P[x, y, 1, x+1, y] = self.determinism
+
+                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+                        counter += 1
+                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
+                        counter += 1
+                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
+                        counter += 1
+                    
+                    wrong_way_probability = (1 - self.determinism) / counter
+
+                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+                        self.P[x, y, 1, x, y-1] = wrong_way_probability
+                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
+                        self.P[x, y, 1, x, y+1] = wrong_way_probability
+                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
+                        self.P[x, y, 1, x-1, y] = wrong_way_probability
+                else:
+                    self.P[x, y, 1, x, y] = 1.0
+                
+                #South
+                counter = 0.0
+                if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
+                    self.P[x, y, 2, x, y+1] = self.determinism
+
+                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+                        counter += 1
+                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+                        counter += 1
+                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
+                        counter += 1
+                    
+                    wrong_way_probability = (1 - self.determinism) / counter
+
+                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+                        self.P[x, y, 2, x, y-1] = wrong_way_probability
+                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+                        self.P[x, y, 2, x+1, y] = wrong_way_probability
+                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
+                        self.P[x, y, 2, x-1, y] = wrong_way_probability
+                else:
+                    self.P[x, y, 2, x, y] = 1.0
+                
+                #West
+                counter = 0.0
+                if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
+                    self.P[x, y, 3, x-1, y] = self.determinism
+
+                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+                        counter += 1
+                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+                        counter += 1
+                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
+                        counter += 1
+
+                    wrong_way_probability = (1 - self.determinism) / counter
+
+                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+                        self.P[x, y, 3, x, y-1] = wrong_way_probability
+                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+                        self.P[x, y, 3, x+1, y] = wrong_way_probability
+                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
+                        self.P[x, y, 3, x, y+1] = wrong_way_probability
+                else:
+                    self.P[x, y, 3, x, y] = 1.0
 
 
     def draw_values(self):
@@ -195,10 +198,10 @@ class Value_Iteration:
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if self.grid_actors[x,y] == Actors.goal:
-                    self.R[x,y] = 999999999
+                    self.R[x,y] = 99
 
                 if self.grid_actors[x,y] == Actors.monster:
-                    self.R[x,y] = -200
+                    self.R[x,y] = -20
 
         for x in range(self.grid_size):
             for y in range(self.grid_size):

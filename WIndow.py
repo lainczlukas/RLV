@@ -1,18 +1,16 @@
-from unittest.mock import patch
 from Policy_Iteration import Policy_Iteration
 from Value_Iteration import Value_Iteration
 from Enums import Actors
 
 from tkinter import *
 from tkinter import filedialog
+from idlelib.tooltip import Hovertip
 from PIL import ImageTk, Image
 import numpy as np
-import sympy as sp
+
 #import matplotlib.pyplot as plt   
 
 from math import floor
-
-
 
 
 class Window:
@@ -42,37 +40,41 @@ class Window:
 
         self.img0 = PhotoImage(file = f"img/img3.png")
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command=self.destroy_intro_window, relief = "flat")
-        self.b0.place(x = 615, y = 376, width = 247, height = 35)
+        self.b0.place(x = 615, y = 386, width = 247, height = 35)
 
         self.scale_size = Scale(from_=2, to=6, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
-        self.scale_size.place(x = 704, y = 210)
+        self.scale_size.place(x = 704, y = 220)
 
         self.options_algo = ["Value Iteration", "Policy Iteration"]
         self.algo = StringVar(self.window)
         self.algo.set(self.options_algo[0])
         self.dropdown = OptionMenu(self.window, self.algo, *self.options_algo)
         self.dropdown.config(width=15)
-        self.dropdown.place(x = 704, y = 265)
+        self.dropdown.place(x = 704, y = 275)
 
-        self.stochastic = IntVar()
-        self.check = Checkbutton(bg = "#E4E4E4", variable=self.stochastic)
-        self.check.place(x = 704, y = 310)
+        self.deterministic = Scale(from_=0.5, to=1.0, orient=HORIZONTAL, length=70, resolution=0.01, bg = "#E4E4E4")
+        self.deterministic.place(x = 704, y = 320)
+        self.deterministic.set(1.0)
+
+        self.img1 = PhotoImage(file = f"img/question.png")
+        self.question = Label(image=self.img1)
+        self.question.place(x=790, y=330)
+
+        self.myTip = Hovertip(self.question,'Represents a probability of ending in a desired state \n 1.0 represents a deterministic environment \n 0.5 represents a random environment', hover_delay=0)        
 
 
     def destroy_intro_window(self):
         self.size = self.scale_size.get()
         self.grid_actors = np.full((self.size, self.size), Actors.empty, Actors)
 
-        if self.stochastic.get() == 0:
-            self.state = "Deterministic"
-        else:
-            self.state = "Stochastic"
-
         self.canvas.delete('all')
         self.b0.destroy()
-        self.check.destroy()
         self.dropdown.destroy()
         self.scale_size.destroy()
+        self.question.destroy()
+
+        self.determinism = self.deterministic.get()
+        self.deterministic.destroy()
 
         self.show_setup_window()
 
@@ -89,7 +91,6 @@ class Window:
         self.dropdown.place(x = 60, y = 80)
 
         self.text_algo = self.canvas.create_text(119.0, 217.5, text = self.algo.get(), fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.text_state = self.canvas.create_text(118.5, 265.5, text = self.state, fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
 
         self.img0 = PhotoImage(file = f"img/img4.png")
         self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command=self.validate_setup_inputs, relief = "flat")
@@ -274,15 +275,16 @@ class Window:
 
     def destroy_setup_window(self):
         if self.algo.get() == self.options_algo[0]:
-            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.stochastic.get())
+            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.determinism)
         
         if self.algo.get() == self.options_algo[1]:
-            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.stochastic.get())
+            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.space_height, self.determinism)
             pass
 
         self.canvas.delete(self.text_algo)
-        self.canvas.delete(self.text_state)
         self.b0.destroy()
+        self.b1.destroy()
+        self.b2.destroy()
         self.dropdown.destroy()
         self.show_main_window()
 
@@ -328,10 +330,6 @@ class Window:
 
 
 if __name__ == "__main__":
-    # x = sp.symbols("x")
-    # expr = sp.sin(sp.sqrt(x**2 + 20)) + 1
-    # sp.preview(expr, viewer='file', filename='output.png')
-
     my_window = Window()
 
     my_window.window.mainloop()
