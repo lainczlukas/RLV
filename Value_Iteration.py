@@ -4,21 +4,20 @@ from tkinter import Canvas
 from Enums import Actors
 
 class Value_Iteration:   
-    def __init__(self, grid_size, grid_actors, canvas_grid: Canvas, space_width, space_height, determinism, R):
+    def __init__(self, grid_size, grid_actors, canvas_grid: Canvas, space_width, determinism, R, A, P):
         self.grid_size = grid_size
         self.grid_actors = grid_actors
         self.canvas_grid = canvas_grid
         self.space_width = space_width
-        self.space_height = space_height
+        self.space_height = self.space_width
         self.determinism = determinism
         self.R = R
+        self.A = A
+        self.P = P
         
         self.V = np.zeros((self.grid_size, self.grid_size), float)
 
-        self.A = [0, 1, 2, 3]
         self.N_actions = len(self.A)
-
-        self.set_transitions()
 
         self.gamma = 0.8
         self.theta = 0.5
@@ -33,10 +32,7 @@ class Value_Iteration:
                 for y in range(self.grid_size):
                     if self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster:
                         prev_value = self.V[x,y]
-                        action_values = list()
-                        for action in range(self.N_actions):
-                            action_value = sum([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])
-                            action_values.append(action_value)                   
+                        action_values = self.get_Q(x, y)                 
                         self.V[x, y] = max(action_values)
                         delta = max(delta, abs(prev_value - self.V[x, y]))
             
@@ -47,6 +43,14 @@ class Value_Iteration:
         
         self.update_values()
 
+
+    def get_Q(self, x, y):
+        action_values = list()
+        for action in range(self.N_actions):
+            action_value = sum([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])
+            action_values.append(action_value)
+
+        return action_values             
 
     def calculate_policy(self):
         policy = np.full((self.grid_size, self.grid_size),-1 ,dtype=float)
@@ -79,104 +83,6 @@ class Value_Iteration:
                 if self.grid_actors[x,y] != Actors.obstacle:
                     text = self.canvas_grid.find_withtag('V{}{}'.format(x,y))
                     self.canvas_grid.itemconfig(text, text=str(round(self.V[x,y], 2)))
-
-
-    def set_transitions(self):
-        self.P = np.zeros((self.grid_size, self.grid_size, self.N_actions, self.grid_size, self.grid_size))
-
-        for x in range(self.grid_size):
-            for y in range(self.grid_size):
-                #North
-                counter = 0
-                if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                    self.P[x, y, 0, x, y-1] = self.determinism
-
-                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        counter += 1
-                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        counter += 1
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        counter += 1
-                    
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        self.P[x, y, 0, x, y+1] = wrong_way_probability
-                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        self.P[x, y, 0, x+1, y] = wrong_way_probability
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        self.P[x, y, 0, x-1, y] = wrong_way_probability
-                else:
-                    self.P[x, y, 0, x, y] = 1.0
-
-                #East
-                counter = 0
-                if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                    self.P[x, y, 1, x+1, y] = self.determinism
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        counter += 1
-                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        counter += 1
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        counter += 1
-                    
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        self.P[x, y, 1, x, y-1] = wrong_way_probability
-                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        self.P[x, y, 1, x, y+1] = wrong_way_probability
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        self.P[x, y, 1, x-1, y] = wrong_way_probability
-                else:
-                    self.P[x, y, 1, x, y] = 1.0
-                
-                #South
-                counter = 0.0
-                if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                    self.P[x, y, 2, x, y+1] = self.determinism
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        counter += 1
-                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        counter += 1
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        counter += 1
-                    
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        self.P[x, y, 2, x, y-1] = wrong_way_probability
-                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        self.P[x, y, 2, x+1, y] = wrong_way_probability
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        self.P[x, y, 2, x-1, y] = wrong_way_probability
-                else:
-                    self.P[x, y, 2, x, y] = 1.0
-                
-                #West
-                counter = 0.0
-                if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                    self.P[x, y, 3, x-1, y] = self.determinism
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        counter += 1
-                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        counter += 1
-                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        counter += 1
-
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        self.P[x, y, 3, x, y-1] = wrong_way_probability
-                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        self.P[x, y, 3, x+1, y] = wrong_way_probability
-                    if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        self.P[x, y, 3, x, y+1] = wrong_way_probability
-                else:
-                    self.P[x, y, 3, x, y] = 1.0
 
 
     def draw_values(self):
