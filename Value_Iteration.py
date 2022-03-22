@@ -22,8 +22,13 @@ class Value_Iteration:
         self.gamma = 0.8
         self.theta = 0.5
 
+        self.converged = False
+
 
     def step(self, step):
+        if self.converged:
+            return
+            
         delta = self.theta + 1.0
 
         for _ in range(step):
@@ -39,6 +44,7 @@ class Value_Iteration:
             if delta < self.theta:
                 self.update_values()
                 self.calculate_policy()
+                self.converged = True
                 return
         
         self.update_values()

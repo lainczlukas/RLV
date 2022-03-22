@@ -380,42 +380,51 @@ class Window:
         self.scale_gamma.set(0.8)
 
         self.img0 = PhotoImage(file = f"img/img0.png")
-        self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = lambda: self.algorithm.step(self.scale_speed.get()), relief = "flat")
+        self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = self.step, relief = "flat")
         self.b0.place(x = 64, y = 50, width = 110, height = 35)
 
         self.img2 = PhotoImage(file = f"img/img2.png")
         self.b1 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
         self.b1.place(x = 19, y = 410, width = 200, height = 35)
 
-        self.canvas_output = Canvas(self.canvas, bg = "#E4E4E4", height=100, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
-        self.canvas_output.place(x = 729, y = 50)
+        self.canvas_Q = Canvas(self.canvas, bg = "#E4E4E4", height=100, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
+        self.canvas_Q.place(x = 729, y = 50)
 
-        self.text_speed = self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.text_gamma = self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
+        self.canvas_math = Canvas(self.canvas, bg = "#E4E4E4", height=265, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
+        self.canvas_math.place(x = 729, y = 185)
+        self.canvas_math.create_text(10, 10, text = "Press Next to render new iteration. \nSpecify in Speed how many \niterations should pass until rendering. \nClick on any state to see Q values.", fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+
+        self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
+        self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
 
         self.algorithm.draw_values()
         self.canvas_grid.bind("<Button-1>", self.show_Q)         
 
     
+    def step(self):
+        self.canvas_math.delete('all')
+        self.algorithm.step(self.scale_speed.get())
+
+
     def show_Q(self, event):
-        self.canvas_output.delete('all')
+        self.canvas_Q.delete('all')
 
         x = floor(event.x / self.space_height)
         y = floor(event.y / self.space_width)
         Q = self.algorithm.get_Q(x, y)
 
         if self.grid_actors[x,y] == Actors.obstacle:
-            self.canvas_output.create_text(20,10, text = "Not a state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
+            self.canvas_Q.create_text(20,10, text = "Not a state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
             return
 
         if self.grid_actors[x,y] == Actors.goal or self.grid_actors[x,y] == Actors.monster:
-            self.canvas_output.create_text(20,10, text = "Terminal state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
+            self.canvas_Q.create_text(20,10, text = "Terminal state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
             return
         
-        self.canvas_output.create_text(20,10, text = "Q({}{},N) = {}".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-        self.canvas_output.create_text(20,30, text = "Q({}{},E) = {}".format(x,y,round(Q[1], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-        self.canvas_output.create_text(20,50, text = "Q({}{},S) = {}".format(x,y,round(Q[2], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-        self.canvas_output.create_text(20,70, text = "Q({}{},W) = {}".format(x,y,round(Q[3], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+        self.canvas_Q.create_text(20,10, text = "Q({}{},N) = {}".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+        self.canvas_Q.create_text(20,30, text = "Q({}{},E) = {}".format(x,y,round(Q[1], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+        self.canvas_Q.create_text(20,50, text = "Q({}{},S) = {}".format(x,y,round(Q[2], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+        self.canvas_Q.create_text(20,70, text = "Q({}{},W) = {}".format(x,y,round(Q[3], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
 
 
     def destroy_main_window(self):
@@ -423,7 +432,8 @@ class Window:
         self.b0.destroy()
         self.b1.destroy()
         self.canvas_grid.destroy()
-        self.canvas_output.destroy()
+        self.canvas_Q.destroy()
+        self.canvas_math.destroy()
         self.canvas_help.destroy()
         self.scale_gamma.destroy()
         self.scale_speed.destroy()
