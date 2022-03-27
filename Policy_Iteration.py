@@ -17,6 +17,7 @@ class Policy_Iteration:
         
         self.V = np.zeros((self.grid_size, self.grid_size), float)
         self.policy = np.zeros((self.grid_size, self.grid_size), int)
+        self.Q = {}
 
         self.N_actions = len(self.A)
 
@@ -62,20 +63,19 @@ class Policy_Iteration:
             for x in range(self.grid_size):
                 for y in range(self.grid_size):
                     if self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster:
-                        Q = {}
+                        Q_values = []
                         for action in range(self.N_actions):
-                            Q[action] = sum(([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)]))
+                            Q_values.append(sum(([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])))
                         
-                    self.policy[x,y] = max(Q, key=Q.get)
+                        self.Q["{}{}".format(x,y)] = Q_values
+                        self.policy[x,y] = np.argmax(Q_values)
 
 
     def get_Q(self, x, y):
-            action_values = []
-            for action in range(self.N_actions):
-                action_value = sum([self.P[x, y, action, x1, y1] * (self.R[x1, y1] + self.gamma * self.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])
-                action_values.append(action_value)
-
-            return action_values             
+        key = "{}{}".format(x,y)
+        if key in self.Q:
+            return self.Q[key]
+        return [0.0,0.0,0.0,0.0]           
 
     def update_policy(self):
         direction = {0: "N", 1: "E", 2: "S", 3:"W"}
