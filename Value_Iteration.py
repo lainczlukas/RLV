@@ -80,7 +80,7 @@ class Value_Iteration:
                         text=direction[policy[x,y]], 
                         fill = "#000", 
                         font = ("RobotoRoman-Bold", int(self.space_width / 7)),
-                        tags='V{}{}'.format(x,y))
+                        tags='P{}{}'.format(x,y))
 
 
     def update_values(self):
@@ -102,5 +102,3 @@ class Value_Iteration:
                         fill = "#000", 
                         font = ("RobotoRoman-Bold", int(self.space_width / 7)),
                         tags='V{}{}'.format(x,y))
-
-

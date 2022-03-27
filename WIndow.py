@@ -8,8 +8,6 @@ from idlelib.tooltip import Hovertip
 from PIL import ImageTk, Image
 import numpy as np
 
-#import matplotlib.pyplot as plt   
-
 from math import floor
 
 
@@ -369,7 +367,8 @@ class Window:
             self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.determinism, self.R, self.A, self.P)
         
         if self.algo.get() == self.options_algo[1]:
-            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.determinism, self.R)
+            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.determinism, self.R, self.A, self.P)
+            self.algorithm.draw_policy()
             pass
 
         self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
