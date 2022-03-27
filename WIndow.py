@@ -1,6 +1,7 @@
 from Policy_Iteration import Policy_Iteration
 from Value_Iteration import Value_Iteration
 from Enums import Actors
+from Environment import Environment
 
 from tkinter import *
 from tkinter import filedialog
@@ -126,19 +127,20 @@ class Window:
         self.space_height = self.canvas_grid.winfo_height() / self.size
         self.space_width = self.canvas_grid.winfo_width() / self.size
 
-        self.draw_grid()
         self.load_images()
         self.canvas_grid.bind("<Button-1>", self.draw)
+
+        self.environment = Environment(self.size, self.canvas_grid, self.space_width, self.determinism)
+        self.draw_grid()
 
     
     def validate_change_revard(self):
         try:
             if self.x_change_R != None and self.y_change_R != None:
-                self.update_reward(self.scale_reward.get(), self.x_change_R, self.y_change_R)
+                self.environment.update_reward(self.scale_reward.get(), self.x_change_R, self.y_change_R)
         except AttributeError:
             #TODO:
             pass
-
 
 
     def load_images(self):
@@ -165,11 +167,8 @@ class Window:
             self.canvas_grid.create_line(0, self.space_height*i, self.canvas_grid.winfo_width(), self.space_height*i)
             self.canvas_grid.create_line(self.space_width*i, 0, self.space_width*i, self.canvas_grid.winfo_height())
 
-        self.grid_actors = np.full((self.size, self.size), Actors.empty, Actors)
-        self.R = np.full((self.size, self.size), -1)
-        self.draw_rewards()
+        self.environment.draw_rewards()
         
-
 
     def draw(self, event):
         x_pos = floor(event.x / self.space_height)
@@ -177,77 +176,77 @@ class Window:
 
         if self.actor.get() == self.options_actors[0]:
             self.canvas_grid.delete('agent')            
-            if self.grid_actors[x_pos, y_pos] == Actors.agent:
-                self.grid_actors[x_pos, y_pos] = Actors.empty        
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.agent:
+                self.environment.grid_actors[x_pos, y_pos] = Actors.empty        
                 return
 
-            if self.grid_actors[x_pos, y_pos] == Actors.goal:
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
-                self.update_reward(-1, x_pos, y_pos)
-            elif self.grid_actors[x_pos, y_pos] == Actors.monster:
+                self.environment.update_reward(-1, x_pos, y_pos)
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-                self.update_reward(-1, x_pos, y_pos)
-            elif self.grid_actors[x_pos, y_pos] == Actors.obstacle:
+                self.environment.update_reward(-1, x_pos, y_pos)
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-                self.update_reward(-1, x_pos, y_pos)
-            index = np.where(self.grid_actors == Actors.agent)
+                self.environment.update_reward(-1, x_pos, y_pos)
+            index = np.where(self.environment.grid_actors == Actors.agent)
             if len(index[0]) > 0:
-                self.grid_actors[index[0][0], index[1][0]] = Actors.empty
-            self.grid_actors[x_pos,y_pos] = Actors.agent
+                self.environment.grid_actors[index[0][0], index[1][0]] = Actors.empty
+            self.environment.grid_actors[x_pos,y_pos] = Actors.agent
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
         
         if self.actor.get() == self.options_actors[1]:
             self.canvas_grid.delete('goal')  
-            if self.grid_actors[x_pos, y_pos] == Actors.goal:
-                self.grid_actors[x_pos, y_pos] = Actors.empty
-                self.update_reward(-1, x_pos, y_pos)
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.goal:
+                self.environment.grid_actors[x_pos, y_pos] = Actors.empty
+                self.environment.update_reward(-1, x_pos, y_pos)
                 return
             
-            if self.grid_actors[x_pos, y_pos] == Actors.agent:
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.agent:
                 self.canvas_grid.delete('agent')
-            elif self.grid_actors[x_pos, y_pos] == Actors.monster:
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-            elif self.grid_actors[x_pos, y_pos] == Actors.obstacle:
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-            index = np.where(self.grid_actors == Actors.goal)
+            index = np.where(self.environment.grid_actors == Actors.goal)
             if len(index[0]) > 0:
-                self.grid_actors[index[0][0], index[1][0]] = Actors.empty
-                self.update_reward(-1, index[0][0], index[1][0])
-            self.grid_actors[x_pos,y_pos] = Actors.goal
+                self.environment.grid_actors[index[0][0], index[1][0]] = Actors.empty
+                self.environment.update_reward(-1, index[0][0], index[1][0])
+            self.environment.grid_actors[x_pos,y_pos] = Actors.goal
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_goal, anchor=NW, tags='goal')
-            self.update_reward(99, x_pos, y_pos)
+            self.environment.update_reward(99, x_pos, y_pos)
 
         if self.actor.get() == self.options_actors[2]:
-            if self.grid_actors[x_pos, y_pos] == Actors.monster:
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-                self.grid_actors[x_pos, y_pos] = Actors.empty
-                self.update_reward(-1, x_pos, y_pos)   
+                self.environment.grid_actors[x_pos, y_pos] = Actors.empty
+                self.environment.update_reward(-1, x_pos, y_pos)   
                 return
             
-            if self.grid_actors[x_pos, y_pos] == Actors.agent:
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.agent:
                 self.canvas_grid.delete('agent')
-            elif self.grid_actors[x_pos, y_pos] == Actors.goal:
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
-            elif self.grid_actors[x_pos, y_pos] == Actors.obstacle:
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-            self.grid_actors[x_pos,y_pos] = Actors.monster
+            self.environment.grid_actors[x_pos,y_pos] = Actors.monster
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_monster, anchor=NW, tags='monster{}{}'.format(x_pos,y_pos))
-            self.update_reward(-20, x_pos, y_pos)
+            self.environment.update_reward(-20, x_pos, y_pos)
 
         if self.actor.get() == self.options_actors[3]:
-            if self.grid_actors[x_pos, y_pos] == Actors.obstacle:
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.obstacle:
                 self.canvas_grid.delete('obstacle{}{}'.format(x_pos,y_pos))
-                self.grid_actors[x_pos, y_pos] = Actors.empty
-                self.update_reward(-1, x_pos, y_pos)
+                self.environment.grid_actors[x_pos, y_pos] = Actors.empty
+                self.environment.update_reward(-1, x_pos, y_pos)
                 return
             
-            if self.grid_actors[x_pos, y_pos] == Actors.agent:
+            if self.environment.grid_actors[x_pos, y_pos] == Actors.agent:
                 self.canvas_grid.delete('agent')  
-            elif self.grid_actors[x_pos, y_pos] == Actors.goal:
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.goal:
                 self.canvas_grid.delete('goal')
-            elif self.grid_actors[x_pos, y_pos] == Actors.monster:
+            elif self.environment.grid_actors[x_pos, y_pos] == Actors.monster:
                 self.canvas_grid.delete('monster{}{}'.format(x_pos,y_pos))
-            self.grid_actors[x_pos,y_pos] = Actors.obstacle
+            self.environment.grid_actors[x_pos,y_pos] = Actors.obstacle
             self.canvas_grid.create_image(x_pos * self.space_width, y_pos * self.space_height, image=self.img_obstacle, anchor=NW, tags='obstacle{}{}'.format(x_pos,y_pos))
             text = self.canvas_grid.find_withtag('R{}{}'.format(x_pos,y_pos))
             self.canvas_grid.itemconfig(text, text="")
@@ -260,10 +259,11 @@ class Window:
 
 
     def validate_setup_inputs(self):
-        if Actors.agent in self.grid_actors and Actors.goal in self.grid_actors:
+        if Actors.agent in self.environment.grid_actors and Actors.goal in self.environment.grid_actors:
             self.destroy_setup_window()
         else:
             print("Wrong Inputs")
+
 
     def save_environment(self):
         f = filedialog.asksaveasfile(defaultextension=' .txt', filetypes=[("Text file", '.txt')])
@@ -276,13 +276,13 @@ class Window:
         for x in range(self.size):
             row = ""
             for y in range(self.size):
-                row += str(Actors(self.grid_actors[x,y]).value)
+                row += str(Actors(self.environment.grid_actors[x,y]).value)
             f.write(row + '\n')
 
         for x in range(self.size):
             row = ""
             for y in range(self.size):
-                row += str(self.R[x,y])
+                row += str(self.environment.R[x,y])
                 row += ','
             f.write(row + '\n')    
 
@@ -299,26 +299,26 @@ class Window:
 
         data = f.readline()
         self.size = int(data)
+        self.window.update()
+        self.environment.update_size(self.size)
         self.canvas_grid.delete('all')
         self.draw_grid()
-        self.grid_actors = np.full((self.size, self.size), Actors.empty, Actors)
 
         for x in range(self.size):
             data = f.readline()
             for y in range(self.size):
-                self.grid_actors[x,y] = Actors(int(data[y]))
+                self.environment.grid_actors[x,y] = Actors(int(data[y]))
 
         for x in range(self.size):
             data = f.readline().split(',')
             for y in range(self.size):
-                self.R[x,y] = int(data[y])
-                if self.grid_actors[x,y] == Actors.obstacle:
+                self.environment.R[x,y] = int(data[y])
+                if self.environment.grid_actors[x,y] == Actors.obstacle:
                     text = self.canvas_grid.find_withtag('R{}{}'.format(x,y))
                     self.canvas_grid.itemconfig(text, text="")
                 else:
-                    self.update_reward(self.R[x,y], x, y)
+                    self.environment.update_reward(self.environment.R[x,y], x, y)
 
-        
         self.load_images()        
         self.draw_actors()
 
@@ -328,13 +328,13 @@ class Window:
     def draw_actors(self):
         for x in range(self.size):
             for y in range(self.size):
-                if self.grid_actors[x,y] == Actors.agent:
+                if self.environment.grid_actors[x,y] == Actors.agent:
                     self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
-                elif self.grid_actors[x,y] == Actors.goal:
+                elif self.environment.grid_actors[x,y] == Actors.goal:
                     self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_goal, anchor=NW, tags='goal')
-                elif self.grid_actors[x,y] == Actors.monster:
+                elif self.environment.grid_actors[x,y] == Actors.monster:
                     self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_monster, anchor=NW, tags='monster{}{}'.format(x,y))
-                elif self.grid_actors[x,y] == Actors.obstacle:
+                elif self.environment.grid_actors[x,y] == Actors.obstacle:
                     self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_obstacle, anchor=NW, tags='obstacle{}{}'.format(x,y))
 
 
@@ -358,17 +358,14 @@ class Window:
         self.background_img = PhotoImage(file = f"img/background_main.png")
         self.background = self.canvas.create_image(516.5, 250.0, image=self.background_img)
 
-        self.A = [0, 1, 2, 3]
-        self.N_actions = len(self.A)
-        self.P = np.zeros((self.size, self.size, self.N_actions, self.size, self.size))
-        self.set_transitions()
+        self.environment.set_transitions()
 
         if self.algo.get() == self.options_algo[0]:
-            self.algorithm = Value_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.determinism, self.R, self.A, self.P)
+            self.algorithm = Value_Iteration(self.environment)
         
         if self.algo.get() == self.options_algo[1]:
-            self.algorithm = Policy_Iteration(self.size, self.grid_actors, self.canvas_grid, self.space_width, self.determinism, self.R, self.A, self.P)
-            self.algorithm.draw_policy()
+            self.algorithm = Policy_Iteration(self.environment)
+            self.environment.draw_policy()
             pass
 
         self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
@@ -396,7 +393,7 @@ class Window:
         self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
 
-        self.algorithm.draw_values()
+        self.environment.draw_values()
         self.canvas_grid.bind("<Button-1>", self.show_Q)         
 
     
@@ -412,11 +409,11 @@ class Window:
         y = floor(event.y / self.space_width)
         Q = self.algorithm.get_Q(x, y)
 
-        if self.grid_actors[x,y] == Actors.obstacle:
+        if self.environment.grid_actors[x,y] == Actors.obstacle:
             self.canvas_Q.create_text(20,10, text = "Not a state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
             return
 
-        if self.grid_actors[x,y] == Actors.goal or self.grid_actors[x,y] == Actors.monster:
+        if self.environment.grid_actors[x,y] == Actors.goal or self.environment.grid_actors[x,y] == Actors.monster:
             self.canvas_Q.create_text(20,10, text = "Terminal state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
             return
         
@@ -437,121 +434,6 @@ class Window:
         self.scale_gamma.destroy()
         self.scale_speed.destroy()
         self.show_intro_window()
-
-    def draw_rewards(self):
-        for x in range(self.size):
-            for y in range(self.size):
-                if self.grid_actors[x,y] != Actors.obstacle:
-                    self.canvas_grid.create_text(
-                        x * self.space_width + self.space_width / 5,
-                        y * self.space_height + self.space_height / 1.4,
-                        text=str(self.R[x,y]),
-                        fill = "#000",
-                        font = ("RobotoRoman-Bold", int(self.space_width / 7)),
-                        tags='R{}{}'.format(x,y))
-
-    
-    def update_reward(self, reward, x, y):
-        text = self.canvas_grid.find_withtag('R{}{}'.format(x,y))
-        self.canvas_grid.itemconfig(text, text=str(round(reward, 2)))
-        self.R[x,y] = reward
-
-
-    def set_transitions(self):
-        for x in range(self.size):
-            for y in range(self.size):
-                #North
-                counter = 0
-                if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                    self.P[x, y, 0, x, y-1] = self.determinism
-
-                    if y != self.size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        counter += 1
-                    if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        counter += 1
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        counter += 1
-                    
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != self.size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        self.P[x, y, 0, x, y+1] = wrong_way_probability
-                    if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        self.P[x, y, 0, x+1, y] = wrong_way_probability
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        self.P[x, y, 0, x-1, y] = wrong_way_probability
-                else:
-                    self.P[x, y, 0, x, y] = 1.0
-
-                #East
-                counter = 0
-                if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                    self.P[x, y, 1, x+1, y] = self.determinism
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        counter += 1
-                    if y != self.size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        counter += 1
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        counter += 1
-                    
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        self.P[x, y, 1, x, y-1] = wrong_way_probability
-                    if y != self.size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        self.P[x, y, 1, x, y+1] = wrong_way_probability
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        self.P[x, y, 1, x-1, y] = wrong_way_probability
-                else:
-                    self.P[x, y, 1, x, y] = 1.0
-                
-                #South
-                counter = 0.0
-                if y != self.size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                    self.P[x, y, 2, x, y+1] = self.determinism
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        counter += 1
-                    if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        counter += 1
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        counter += 1
-                    
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        self.P[x, y, 2, x, y-1] = wrong_way_probability
-                    if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        self.P[x, y, 2, x+1, y] = wrong_way_probability
-                    if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                        self.P[x, y, 2, x-1, y] = wrong_way_probability
-                else:
-                    self.P[x, y, 2, x, y] = 1.0
-                
-                #West
-                counter = 0.0
-                if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
-                    self.P[x, y, 3, x-1, y] = self.determinism
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        counter += 1
-                    if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        counter += 1
-                    if y != self.size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        counter += 1
-
-                    wrong_way_probability = (1 - self.determinism) / counter
-
-                    if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
-                        self.P[x, y, 3, x, y-1] = wrong_way_probability
-                    if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
-                        self.P[x, y, 3, x+1, y] = wrong_way_probability
-                    if y != self.size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
-                        self.P[x, y, 3, x, y+1] = wrong_way_probability
-                else:
-                    self.P[x, y, 3, x, y] = 1.0
-
 
 
 if __name__ == "__main__":
