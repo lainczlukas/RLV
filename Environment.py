@@ -192,6 +192,7 @@ class Environment:
                 else:
                     self.P[x, y, 3, x, y] = 1.0
 
+
     def update_size(self, grid_size):
         self.grid_size = grid_size
         self.grid_actors = np.full((self.grid_size, self.grid_size), Actors.empty, Actors)

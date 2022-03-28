@@ -1,6 +1,3 @@
-import numpy as np
-from tkinter import Canvas
-
 from Enums import Actors
 from Environment import Environment
 

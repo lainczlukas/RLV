@@ -59,7 +59,7 @@ class Window:
         self.question = Label(image=self.img1)
         self.question.place(x=790, y=330)
 
-        self.myTip = Hovertip(self.question,'Represents a probability of ending in a desired state \n 1.0 represents a deterministic environment \n 0.5 represents a random environment', hover_delay=0)        
+        self.myTip = Hovertip(self.question,' Represents a probability of ending in a desired state \n 1.0 represents a 100% probability - a deterministic environment \n 0.5 represents a 50% probability of ending in a desired state and \n a 50% probability of ending in other possible state \n this probability is equally distributed \n among every other neighboring state', hover_delay=0)        
 
 
     def destroy_intro_window(self):
@@ -101,16 +101,14 @@ class Window:
         self.b2.place(x = 20, y = 321, width = 197, height = 35)
 
         self.scale_reward = Scale(from_=-99, to=999, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
-        self.scale_reward.place(x = 877, y = 250)
+        self.scale_reward.place(x = 877, y = 330)
 
-        self.canvas.create_text(810, 270, text = "New reward:", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 14), tags="new_reward")
-        self.canvas.create_text(850, 200, text = "Change reward in state:", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 14), tags="change_reward")
+        self.canvas.create_text(810, 350, text = "New reward:", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 14), tags="new_reward")
+        self.canvas.create_text(850, 290, text = "Change reward in state:", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 14), tags="change_reward")
 
         self.img3 = PhotoImage(file = f"img/img6.png")
         self.b3 = Button(image = self.img3, borderwidth = 0, highlightthickness = 0, command= self.validate_change_revard, relief = "flat")
-        self.b3.place(x = 760, y = 321, width = 197, height = 35)
-
-        self.myTip = Hovertip(self.b3,'Choose \"Change reward\" from options, \n click on a desired state \n and choose new reward value', hover_delay=0)        
+        self.b3.place(x = 760, y = 401, width = 197, height = 35)       
 
         self.canvas_grid = Canvas(self.canvas, bg = "#E4E4E4", height=400, width=400, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_grid.place(x = 284, y = 50)
@@ -122,7 +120,7 @@ class Window:
         self.canvas_help.create_text(90, 30, text = "V(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
         self.canvas_help.create_text(30, 90, text = "R(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
         self.canvas_help.create_text(90, 90, text = "Policy", fill = "#000", font = ("RobotoRoman-Bold", 14))
-
+        self.canvas.create_text(710, 50, text = " Click on topleft widget, choose an actor \n and click on a gridworld state to place/remove it. \n You need to place at least agent and goal \n to start environment. \n Choose \"Change reward\" from options, \n click on a desired state \n and choose new reward value. \n You can save your environment and load it later. \n Number in a bottom left corner of a state represents \n reward agent obtains by getting to the state. \n After starting the algoritm policy and value \n wil be calculated and rendered for every state", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 10), anchor=NW, tags="setupHelp")
         self.window.update()
         self.space_height = self.canvas_grid.winfo_height() / self.size
         self.space_width = self.canvas_grid.winfo_width() / self.size
@@ -268,12 +266,10 @@ class Window:
 
     def save_environment(self):
         f = filedialog.asksaveasfile(defaultextension=' .txt', filetypes=[("Text file", '.txt')])
-
         if f is None:
             return
 
         f.write(str(self.size) + '\n')
-
         for x in range(self.size):
             row = ""
             for y in range(self.size):
@@ -286,18 +282,15 @@ class Window:
                 row += str(self.environment.R[x,y])
                 row += ','
             f.write(row + '\n')    
-
         f.close()
 
 
     def load_environment(self):
         path = filedialog.askopenfilename(filetypes= (("Text file","*.txt"), ("All files","*.*")))
-        
         if path is None or path == '':
             return
 
         f = open(path, 'r')
-
         data = f.readline()
         self.size = int(data)
         self.window.update()
@@ -322,7 +315,6 @@ class Window:
 
         self.load_images()        
         self.draw_actors()
-
         f.close()
 
     
@@ -350,14 +342,14 @@ class Window:
         self.canvas.delete('helperBg')
         self.canvas.delete('new_reward')
         self.canvas.delete('change_reward')
-        self.canvas.create_rectangle(44, 240, 194, 390, fill="#C0C781", tags='helperBg')
-        self.canvas_help.place(x = 54.5, y = 250)
+        self.canvas.delete('setupHelp')
+        self.canvas_help.destroy()
         self.show_main_window()
 
 
     def show_main_window(self):
         self.background_img = PhotoImage(file = f"img/background_main.png")
-        self.background = self.canvas.create_image(516.5, 250.0, image=self.background_img)
+        self.background = self.canvas.create_image(612.5, 250.0, image=self.background_img)
 
         self.environment.set_transitions()
 
@@ -389,10 +381,10 @@ class Window:
 
         self.canvas_math = Canvas(self.canvas, bg = "#E4E4E4", height=265, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_math.place(x = 729, y = 185)
-        self.canvas_math.create_text(10, 10, text = "Press Next to render new iteration. \nSpecify in Speed how many \niterations should pass until rendering. \nClick on any state to see Q values.", fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
 
         self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
+        self.canvas.create_text(10, 260, text = " Press Next to render new iteration. \n Specify in Speed how many \n iterations should pass before rendering. \n Click on any state to see Q values \n from last iteration and calculation \n of state value for a clicked state. \n Press next until algorithm converges.\n", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 9), anchor=NW)
 
         self.environment.draw_values()
         self.canvas_grid.bind("<Button-1>", self.show_Q)         
