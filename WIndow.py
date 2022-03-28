@@ -254,8 +254,9 @@ class Window:
         if self.actor.get() == self.options_actors[4]:
             self.x_change_R = x_pos
             self.y_change_R = y_pos
-            text = self.canvas.find_withtag("change_reward")
-            self.canvas.itemconfig(text, text="Change reward in state: {},{}".format(self.x_change_R, self.y_change_R))
+            if self.environment.grid_actors[self.x_change_R, self.y_change_R] != Actors.obstacle:
+                text = self.canvas.find_withtag("change_reward")
+                self.canvas.itemconfig(text, text="Change reward in state: {},{}".format(self.x_change_R, self.y_change_R))
 
 
     def validate_setup_inputs(self):

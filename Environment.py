@@ -100,7 +100,10 @@ class Environment:
                     if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
                         counter += 1
                     
-                    wrong_way_probability = (1 - self.determinism) / counter
+                    if counter != 0:
+                        wrong_way_probability = (1 - self.determinism) / counter
+                    else:
+                        self.P[x, y, 0, x, y-1] = 1
 
                     if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
                         self.P[x, y, 0, x, y+1] = wrong_way_probability
@@ -123,7 +126,10 @@ class Environment:
                     if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
                         counter += 1
                     
-                    wrong_way_probability = (1 - self.determinism) / counter
+                    if counter != 0:
+                        wrong_way_probability = (1 - self.determinism) / counter
+                    else:
+                        self.P[x, y, 1, x+1, y] = 1
 
                     if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
                         self.P[x, y, 1, x, y-1] = wrong_way_probability
@@ -146,11 +152,14 @@ class Environment:
                     if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
                         counter += 1
                     
-                    wrong_way_probability = (1 - self.determinism) / counter
+                    if counter != 0:
+                        wrong_way_probability = (1 - self.determinism) / counter
+                    else:
+                        self.P[x, y, 2, x, y+1] = 1
 
                     if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
                         self.P[x, y, 2, x, y-1] = wrong_way_probability
-                    if x != self.size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+                    if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
                         self.P[x, y, 2, x+1, y] = wrong_way_probability
                     if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
                         self.P[x, y, 2, x-1, y] = wrong_way_probability
@@ -169,7 +178,10 @@ class Environment:
                     if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
                         counter += 1
 
-                    wrong_way_probability = (1 - self.determinism) / counter
+                    if counter != 0:
+                        wrong_way_probability = (1 - self.determinism) / counter
+                    else:
+                        self.P[x, y, 3, x-1, y] = 1
 
                     if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
                         self.P[x, y, 3, x, y-1] = wrong_way_probability
