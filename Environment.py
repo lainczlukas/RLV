@@ -21,6 +21,8 @@ class Environment:
         self.V = np.zeros((self.grid_size, self.grid_size), float)
         self.policy = np.zeros((self.grid_size, self.grid_size), int)
 
+        self.math_state = (0, 0)
+
 
     def update_values(self):
         for x in range(self.grid_size):
@@ -203,3 +205,7 @@ class Environment:
 
         self.space_height = self.canvas_grid.winfo_height() / self.grid_size
         self.space_width = self.canvas_grid.winfo_width() / self.grid_size
+
+    
+    def set_math_state(self, x, y):
+        self.math_state = (x, y)

@@ -120,7 +120,7 @@ class Window:
         self.canvas_help.create_text(90, 30, text = "V(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
         self.canvas_help.create_text(30, 90, text = "R(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
         self.canvas_help.create_text(90, 90, text = "Policy", fill = "#000", font = ("RobotoRoman-Bold", 14))
-        self.canvas.create_text(710, 50, text = " Click on topleft widget, choose an actor \n and click on a gridworld state to place/remove it. \n You need to place at least agent and goal \n to start environment. \n Choose \"Change reward\" from options, \n click on a desired state \n and choose new reward value. \n You can save your environment and load it later. \n Number in a bottom left corner of a state represents \n reward agent obtains by getting to the state. \n After starting the algoritm policy and value \n wil be calculated and rendered for every state", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 10), anchor=NW, tags="setupHelp")
+        self.canvas.create_text(710, 50, text = " Click on top left widget, choose an actor \n and click on a gridworld state to place/remove it. \n You need to place at least agent and goal \n to start environment. \n Choose \"Change reward\" from options, \n click on a desired state \n and choose new reward value. \n You can save your environment and load it later. \n Number in a bottom left corner of a state represents \n reward agent obtains by getting to the state. \n After starting the algoritm policy and value \n wil be calculated and rendered for every state.", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 10), anchor=NW, tags="setupHelp")
         self.window.update()
         self.space_height = self.canvas_grid.winfo_height() / self.size
         self.space_width = self.canvas_grid.winfo_width() / self.size
@@ -384,36 +384,49 @@ class Window:
 
         self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.canvas.create_text(10, 260, text = " Press Next to render new iteration. \n Specify in Speed how many \n iterations should pass before rendering. \n Click on any state to see Q values \n from last iteration and calculation \n of state value for a clicked state. \n Press next until algorithm converges.\n", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 9), anchor=NW)
+        self.canvas.create_text(117.0, 244.5, text = "Math will be rendered for state {},{}".format(self.environment.math_state[0], self.environment.math_state[1]), fill = "#ffffff", font = ("RobotoRoman-Bold", 11), tags='math_state_text')
+        self.canvas.create_text(10, 280, text = """ Press Next to render new iteration. \n Specify in Speed how many \n iterations should pass before rendering. 
+ Click on any state and click next \n to render state value calculations \n for selected state.
+ Press next until algorithm converges.\n""", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 9), anchor=NW)
 
         self.environment.draw_values()
-        self.canvas_grid.bind("<Button-1>", self.show_Q)         
+        self.canvas_grid.bind("<Button-1>", self.set_math_state)         
 
     
     def step(self):
         self.canvas_math.delete('all')
+        self.canvas_Q.delete('all')
         self.algorithm.step(self.scale_speed.get())
 
 
-    def show_Q(self, event):
-        self.canvas_Q.delete('all')
-
+    def set_math_state(self, event):
         x = floor(event.x / self.space_height)
         y = floor(event.y / self.space_width)
-        Q = self.algorithm.get_Q(x, y)
 
-        if self.environment.grid_actors[x,y] == Actors.obstacle:
-            self.canvas_Q.create_text(20,10, text = "Not a state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
-            return
+        self.environment.set_math_state(x, y)
 
-        if self.environment.grid_actors[x,y] == Actors.goal or self.environment.grid_actors[x,y] == Actors.monster:
-            self.canvas_Q.create_text(20,10, text = "Terminal state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
-            return
+        text = self.canvas.find_withtag('math_state_text')
+        self.canvas.itemconfig(text, text="Math will be rendered for state {},{}".format(self.environment.math_state[0], self.environment.math_state[1]))
+
+    # def show_Q(self, event):
+    #     self.canvas_Q.delete('all')
+
+    #     x = floor(event.x / self.space_height)
+    #     y = floor(event.y / self.space_width)
+    #     Q = self.algorithm.get_Q(x, y)
+
+    #     if self.environment.grid_actors[x,y] == Actors.obstacle:
+    #         self.canvas_Q.create_text(20,10, text = "Not a state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
+    #         return
+
+    #     if self.environment.grid_actors[x,y] == Actors.goal or self.environment.grid_actors[x,y] == Actors.monster:
+    #         self.canvas_Q.create_text(20,10, text = "Terminal state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
+    #         return
         
-        self.canvas_Q.create_text(20,10, text = "Q({}{},N) = {}".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-        self.canvas_Q.create_text(20,30, text = "Q({}{},E) = {}".format(x,y,round(Q[1], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-        self.canvas_Q.create_text(20,50, text = "Q({}{},S) = {}".format(x,y,round(Q[2], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-        self.canvas_Q.create_text(20,70, text = "Q({}{},W) = {}".format(x,y,round(Q[3], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+    #     self.canvas_Q.create_text(20,10, text = "Q({}{},N) = {}".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+    #     self.canvas_Q.create_text(20,30, text = "Q({}{},E) = {}".format(x,y,round(Q[1], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+    #     self.canvas_Q.create_text(20,50, text = "Q({}{},S) = {}".format(x,y,round(Q[2], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+    #     self.canvas_Q.create_text(20,70, text = "Q({}{},W) = {}".format(x,y,round(Q[3], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
 
 
     def destroy_main_window(self):
