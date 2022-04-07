@@ -1,4 +1,4 @@
-from Enums import Actors
+from Enums import Actors, Directions
 from Environment import Environment
 
 class Value_Iteration:   
@@ -32,10 +32,22 @@ class Value_Iteration:
                     if self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster:
                         prev_value = self.environment.V[x,y]
                         action_values = []
+                        equations = ["V(s) = max a Sum{ p(s1,r|s,a) * [r + gamma * V(s1)]}"]
+                        Q_equations = []
+                        
                         for action in range(self.environment.N_actions):
-                            action_value = sum([self.environment.P[x, y, action, x1, y1] * (self.environment.R[x1, y1] + self.gamma * self.environment.V[x1, y1]) for x1 in range(self.grid_size) for y1 in range(self.grid_size)])
+                            equation = "V(s{}{},{}) = ".format(x,y,str(Directions(action)))
+                            action_value = 0
+
+                            for x1 in range(self.grid_size):
+                                for y1 in range(self.grid_size):
+                                    action_value += self.environment.P[x, y, action, x1, y1] * (self.environment.R[x1, y1] + self.gamma * self.environment.V[x1, y1])
+                                    if self.environment.P[x, y, action, x1, y1] != 0:
+                                        equation += "{} * ({} + {}  * {})".format(self.environment.P[x, y, action, x1, y1], self.environment.R[x1, y1], self.gamma, self.environment.V[x1, y1])                            
+                            
                             action_values.append(action_value)
-                        self.Q["{}{}".format(x,y)] = action_values                               
+                            equations.append(equation)
+                        self.Q["{}{}".format(x,y)] = action_values
                         self.environment.V[x, y] = max(action_values)
                         delta = max(delta, abs(prev_value - self.environment.V[x, y]))
             

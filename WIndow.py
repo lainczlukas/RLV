@@ -408,6 +408,7 @@ class Window:
         text = self.canvas.find_withtag('math_state_text')
         self.canvas.itemconfig(text, text="Math will be rendered for state {},{}".format(self.environment.math_state[0], self.environment.math_state[1]))
 
+
     # def show_Q(self, event):
     #     self.canvas_Q.delete('all')
 
