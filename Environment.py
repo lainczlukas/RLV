@@ -1,7 +1,7 @@
 from tkinter import Canvas
 import numpy as np
 
-from Enums import Actors
+from Enums import Actors, Directions
 
 class Environment:
     def __init__(self, grid_size, canvas_grid: Canvas, space_width, determinism):
@@ -22,6 +22,7 @@ class Environment:
         self.policy = np.zeros((self.grid_size, self.grid_size), int)
 
         self.math_state = (0, 0)
+        self.equations = []
 
 
     def update_values(self):
@@ -65,23 +66,21 @@ class Environment:
 
 
     def update_policy(self):
-        direction = {0: "N", 1: "E", 2: "S", 3:"W"}
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if self.grid_actors[x,y] != Actors.obstacle:
                     text = self.canvas_grid.find_withtag('P{}{}'.format(x,y))
-                    self.canvas_grid.itemconfig(text, text=direction[self.policy[x,y]])
+                    self.canvas_grid.itemconfig(text, text=str(Directions(self.policy[x,y]).name))
 
 
     def draw_policy(self):
-        direction = {0: "N", 1: "E", 2: "S", 3:"W"}
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster and self.grid_actors[x,y] != Actors.obstacle:
                     self.canvas_grid.create_text(
                         x * self.space_width + self.space_width / 1.4, 
                         y * self.space_height + self.space_height / 1.4, 
-                        text=direction[self.policy[x,y]], 
+                        text=str(Directions(self.policy[x,y]).name),
                         fill = "#000", 
                         font = ("RobotoRoman-Bold", int(self.space_width / 7)),
                         tags='P{}{}'.format(x,y))
