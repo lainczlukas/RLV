@@ -24,6 +24,13 @@ class Environment:
         self.math_state = (0, 0)
         self.equations = []
 
+    
+    def update_math(self):
+        self.canvas_math.delete('all')
+        for i, equation in enumerate(self.equations):
+            self.canvas_math.create_text(10, 10 + 40*i, text=equation, anchor='nw', fill = "#000", font = ("RobotoRoman-Bold", 10))
+
+
 
     def update_values(self):
         for x in range(self.grid_size):
@@ -31,6 +38,8 @@ class Environment:
                 if self.grid_actors[x,y] != Actors.obstacle:
                     text = self.canvas_grid.find_withtag('V{}{}'.format(x,y))
                     self.canvas_grid.itemconfig(text, text=str(round(self.V[x,y], 2)))
+        
+        self.update_math()
 
 
     def draw_values(self):
@@ -208,3 +217,7 @@ class Environment:
     
     def set_math_state(self, x, y):
         self.math_state = (x, y)
+
+
+    def set_canvas_math(self, canvas_math: Canvas):
+        self.canvas_math = canvas_math

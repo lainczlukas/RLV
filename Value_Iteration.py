@@ -32,7 +32,7 @@ class Value_Iteration:
                     if self.grid_actors[x,y] != Actors.goal and self.grid_actors[x,y] != Actors.monster:
                         prev_value = self.environment.V[x,y]
                         action_values = []
-                        equations = ["V(s) = max a Sum{ p(s1,r|s,a) * [r + gamma * V(s1)]}"]
+                        equations = ["V(s) = max a Sum{ p(s1,r|s,a) *\n* [r + gamma * V(s1)]}"]
                         Q_equations = []
                         
                         for action in range(self.environment.N_actions):
@@ -44,7 +44,7 @@ class Value_Iteration:
                                 for y1 in range(self.grid_size):
                                     action_value += self.environment.P[x, y, action, x1, y1] * (self.environment.R[x1, y1] + self.gamma * self.environment.V[x1, y1])
                                     if (x,y) == self.environment.math_state and self.environment.P[x, y, action, x1, y1] != 0:
-                                        equation += "{} * ({} + {}  * {})".format(self.environment.P[x, y, action, x1, y1], self.environment.R[x1, y1], self.gamma, self.environment.V[x1, y1])                            
+                                        equation += "{} * ({} + {}  * {})".format(round(self.environment.P[x, y, action, x1, y1], 2), self.environment.R[x1, y1], self.gamma, round(self.environment.V[x1, y1], 2))                            
                             
                             action_values.append(action_value)
                             if (x,y) == self.environment.math_state:
@@ -63,7 +63,6 @@ class Value_Iteration:
                 self.converged = True
                 return
         
-        print(self.environment.equations)
         self.environment.update_values()
 
 

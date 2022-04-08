@@ -381,6 +381,7 @@ class Window:
 
         self.canvas_math = Canvas(self.canvas, bg = "#E4E4E4", height=265, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_math.place(x = 729, y = 185)
+        self.environment.set_canvas_math(self.canvas_math)
 
         self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
@@ -394,8 +395,6 @@ class Window:
 
     
     def step(self):
-        self.canvas_math.delete('all')
-        self.canvas_Q.delete('all')
         self.algorithm.step(self.scale_speed.get())
 
 
