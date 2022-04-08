@@ -1,3 +1,4 @@
+from matplotlib import image
 from Policy_Iteration import Policy_Iteration
 from Value_Iteration import Value_Iteration
 from Enums import Actors
@@ -355,6 +356,8 @@ class Window:
 
         if self.algo.get() == self.options_algo[0]:
             self.algorithm = Value_Iteration(self.environment)
+            self.equation_img = PhotoImage(file = f"img/value_iteration.png")
+            self.canvas.create_image(854, 100, image=self.equation_img)
         
         if self.algo.get() == self.options_algo[1]:
             self.algorithm = Policy_Iteration(self.environment)
@@ -376,57 +379,32 @@ class Window:
         self.b1 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
         self.b1.place(x = 19, y = 410, width = 200, height = 35)
 
-        self.canvas_Q = Canvas(self.canvas, bg = "#E4E4E4", height=100, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
-        self.canvas_Q.place(x = 729, y = 50)
-
         self.canvas_math = Canvas(self.canvas, bg = "#E4E4E4", height=265, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
         self.canvas_math.place(x = 729, y = 185)
-        self.environment.set_canvas_math(self.canvas_math)
 
         self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.canvas.create_text(117.0, 244.5, text = "Math will be rendered for state {},{}".format(self.environment.math_state[0], self.environment.math_state[1]), fill = "#ffffff", font = ("RobotoRoman-Bold", 11), tags='math_state_text')
         self.canvas.create_text(10, 280, text = """ Press Next to render new iteration. \n Specify in Speed how many \n iterations should pass before rendering. 
- Click on any state and click next \n to render state value calculations \n for selected state.
+ Click on any state and click next \n to see how state value was calculated.
  Press next until algorithm converges.\n""", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 9), anchor=NW)
 
         self.environment.draw_values()
-        self.canvas_grid.bind("<Button-1>", self.set_math_state)         
+        self.canvas_grid.bind("<Button-1>", self.render_math)         
 
     
     def step(self):
         self.algorithm.step(self.scale_speed.get())
 
 
-    def set_math_state(self, event):
+    def render_math(self, event):
+        self.canvas_math.delete('all')
         x = floor(event.x / self.space_height)
         y = floor(event.y / self.space_width)
-
-        self.environment.set_math_state(x, y)
-
-        text = self.canvas.find_withtag('math_state_text')
-        self.canvas.itemconfig(text, text="Math will be rendered for state {},{}".format(self.environment.math_state[0], self.environment.math_state[1]))
-
-
-    # def show_Q(self, event):
-    #     self.canvas_Q.delete('all')
-
-    #     x = floor(event.x / self.space_height)
-    #     y = floor(event.y / self.space_width)
-    #     Q = self.algorithm.get_Q(x, y)
-
-    #     if self.environment.grid_actors[x,y] == Actors.obstacle:
-    #         self.canvas_Q.create_text(20,10, text = "Not a state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
-    #         return
-
-    #     if self.environment.grid_actors[x,y] == Actors.goal or self.environment.grid_actors[x,y] == Actors.monster:
-    #         self.canvas_Q.create_text(20,10, text = "Terminal state".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 20), anchor=NW)
-    #         return
-        
-    #     self.canvas_Q.create_text(20,10, text = "Q({}{},N) = {}".format(x,y,round(Q[0], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-    #     self.canvas_Q.create_text(20,30, text = "Q({}{},E) = {}".format(x,y,round(Q[1], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-    #     self.canvas_Q.create_text(20,50, text = "Q({}{},S) = {}".format(x,y,round(Q[2], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
-    #     self.canvas_Q.create_text(20,70, text = "Q({}{},W) = {}".format(x,y,round(Q[3], 2)), fill = "#000", font = ("RobotoRoman-Bold", 10), anchor=NW)
+        if self.environment.equations:
+            for i, equation in enumerate(self.environment.equations["{}{}".format(x,y)]):
+                self.canvas_math.create_text(10, 10 + 20 * i, text=equation, anchor=NW)
+        else:
+            self.canvas_math.create_text(10, 10, text="All state values were initialised to 0", anchor=NW)
 
 
     def destroy_main_window(self):
@@ -434,7 +412,6 @@ class Window:
         self.b0.destroy()
         self.b1.destroy()
         self.canvas_grid.destroy()
-        self.canvas_Q.destroy()
         self.canvas_math.destroy()
         self.canvas_help.destroy()
         self.scale_gamma.destroy()

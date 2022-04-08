@@ -21,15 +21,7 @@ class Environment:
         self.V = np.zeros((self.grid_size, self.grid_size), float)
         self.policy = np.zeros((self.grid_size, self.grid_size), int)
 
-        self.math_state = (0, 0)
-        self.equations = []
-
-    
-    def update_math(self):
-        self.canvas_math.delete('all')
-        for i, equation in enumerate(self.equations):
-            self.canvas_math.create_text(10, 10 + 40*i, text=equation, anchor='nw', fill = "#000", font = ("RobotoRoman-Bold", 10))
-
+        self.equations = {}
 
 
     def update_values(self):
@@ -39,7 +31,7 @@ class Environment:
                     text = self.canvas_grid.find_withtag('V{}{}'.format(x,y))
                     self.canvas_grid.itemconfig(text, text=str(round(self.V[x,y], 2)))
         
-        self.update_math()
+       
 
 
     def draw_values(self):
@@ -213,11 +205,3 @@ class Environment:
 
         self.space_height = self.canvas_grid.winfo_height() / self.grid_size
         self.space_width = self.canvas_grid.winfo_width() / self.grid_size
-
-    
-    def set_math_state(self, x, y):
-        self.math_state = (x, y)
-
-
-    def set_canvas_math(self, canvas_math: Canvas):
-        self.canvas_math = canvas_math
