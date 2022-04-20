@@ -1,6 +1,6 @@
-from matplotlib import image
 from Policy_Iteration import Policy_Iteration
 from Value_Iteration import Value_Iteration
+from Q_learning import Q_learning
 from Enums import Actors
 from Environment import Environment
 
@@ -45,7 +45,7 @@ class Window:
         self.scale_size = Scale(from_=2, to=6, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_size.place(x = 704, y = 220)
 
-        self.options_algo = ["Value Iteration", "Policy Iteration"]
+        self.options_algo = ["Value Iteration", "Policy Iteration", "Q_learning"]
         self.algo = StringVar(self.window)
         self.algo.set(self.options_algo[0])
         self.dropdown = OptionMenu(self.window, self.algo, *self.options_algo)
@@ -318,7 +318,7 @@ class Window:
         self.draw_actors()
         f.close()
 
-    
+
     def draw_actors(self):
         for x in range(self.size):
             for y in range(self.size):
@@ -358,11 +358,13 @@ class Window:
             self.algorithm = Value_Iteration(self.environment)
             self.equation_img = PhotoImage(file = f"img/value_iteration.png")
             self.canvas.create_image(854, 100, image=self.equation_img)
-        
+
         if self.algo.get() == self.options_algo[1]:
             self.algorithm = Policy_Iteration(self.environment)
             self.environment.draw_policy()
-            pass
+
+        if self.algo.get() == self.options_algo[2]:
+            self.algorithm = Q_learning(self.environment)
 
         self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_speed.place(x = 117, y = 115)
