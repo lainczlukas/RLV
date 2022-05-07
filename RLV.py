@@ -371,7 +371,7 @@ class Window:
         self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_speed.place(x = 117, y = 115)
 
-        self.scale_gamma = Scale(from_=0, to=1, orient=HORIZONTAL, length=70, resolution=0.05, bg = "#E4E4E4")
+        self.scale_gamma = Scale(from_=0, to=0.95, orient=HORIZONTAL, length=70, resolution=0.05, bg = "#E4E4E4")
         self.scale_gamma.place(x = 117, y = 180)
         self.scale_gamma.set(0.8)
 
@@ -398,6 +398,7 @@ class Window:
 
     def step(self):
         self.canvas_math.delete('all')
+        self.algorithm.gamma = self.scale_gamma.get()
         self.algorithm.step(self.scale_speed.get())
 
 
