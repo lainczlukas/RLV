@@ -41,11 +41,12 @@ class Value_Iteration:
                                 for y1 in range(self.grid_size):
                                     action_value += self.environment.P[x, y, action, x1, y1] * (self.environment.R[x1, y1] + self.gamma * self.environment.V[x1, y1])
                                     if self.environment.P[x, y, action, x1, y1] != 0:
-                                        equation += "{} * ({} + {}  * {})".format(round(self.environment.P[x, y, action, x1, y1], 2), self.environment.R[x1, y1], self.gamma, round(self.environment.V[x1, y1], 2))                            
+                                        equation += "{} * ({} + {}  * {}) + \n".format(round(self.environment.P[x, y, action, x1, y1], 2), self.environment.R[x1, y1], self.gamma, round(self.environment.V[x1, y1], 2))                            
 
                             action_value = round(action_value, 2) 
                             action_values.append(action_value)
-                            equation += " = {}".format(action_value)
+                            equation = equation[:-3]
+                            equation += "= {}".format(action_value)
                             self.environment.equations['{}{}'.format(x,y)].append(equation)
 
                         self.environment.V[x, y] = max(action_values)

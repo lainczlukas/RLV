@@ -45,7 +45,7 @@ class Window:
         self.scale_size = Scale(from_=2, to=6, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_size.place(x = 704, y = 220)
 
-        self.options_algo = ["Value Iteration", "Policy Iteration", "Q_learning"]
+        self.options_algo = ["Value Iteration", "Policy Iteration"]
         self.algo = StringVar(self.window)
         self.algo.set(self.options_algo[0])
         self.dropdown = OptionMenu(self.window, self.algo, *self.options_algo)
@@ -356,15 +356,17 @@ class Window:
 
         if self.algo.get() == self.options_algo[0]:
             self.algorithm = Value_Iteration(self.environment)
-            self.equation_img = PhotoImage(file = f"img/value_iteration.png")
+            self.equation_img = PhotoImage(file = f"img/VI.png")
             self.canvas.create_image(854, 100, image=self.equation_img)
 
         if self.algo.get() == self.options_algo[1]:
             self.algorithm = Policy_Iteration(self.environment)
+            self.equation_img = PhotoImage(file = f"img/PI.png")
+            self.canvas.create_image(854, 100, image=self.equation_img)
             self.environment.draw_policy()
 
-        if self.algo.get() == self.options_algo[2]:
-            self.algorithm = Q_learning(self.environment)
+        # if self.algo.get() == self.options_algo[2]:
+        #     self.algorithm = Q_learning(self.environment)
 
         self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_speed.place(x = 117, y = 115)
@@ -393,8 +395,9 @@ class Window:
         self.environment.draw_values()
         self.canvas_grid.bind("<Button-1>", self.render_math)         
 
-    
+
     def step(self):
+        self.canvas_math.delete('all')
         self.algorithm.step(self.scale_speed.get())
 
 
@@ -402,11 +405,15 @@ class Window:
         self.canvas_math.delete('all')
         x = floor(event.x / self.space_height)
         y = floor(event.y / self.space_width)
-        if self.environment.equations:
-            for i, equation in enumerate(self.environment.equations["{}{}".format(x,y)]):
-                self.canvas_math.create_text(10, 10 + 20 * i, text=equation, anchor=NW)
-        else:
-            self.canvas_math.create_text(10, 10, text="All state values were initialised to 0", anchor=NW)
+        if self.environment.grid_actors[x,y] != Actors.obstacle:
+            if self.environment.equations:
+                if self.environment.grid_actors[x,y] == Actors.goal or self.environment.grid_actors[x,y] == Actors.monster:
+                    self.canvas_math.create_text(10, 10, text="Terminal state", anchor=NW)
+                else:
+                    for i, equation in enumerate(self.environment.equations["{}{}".format(x,y)]):
+                        self.canvas_math.create_text(10, 10 + 65 * i, text=equation, anchor=NW)
+            else:
+                self.canvas_math.create_text(10, 10, text="All state values were initialised to 0", anchor=NW)
 
 
     def destroy_main_window(self):

@@ -49,6 +49,7 @@ class Q_learning:
 
                 self.current_state = next_state
 
+
     def get_new_state(self, action):
         weights = self.environment.P[self.current_state[0], self.current_state[1], action]
         next_state = np.random.choice((), p=weights)
