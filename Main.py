@@ -45,7 +45,7 @@ class Window:
         self.scale_size = Scale(from_=2, to=6, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_size.place(x = 704, y = 220)
 
-        self.options_algo = ["Value Iteration", "Policy Iteration"]
+        self.options_algo = ["Value Iteration", "Policy Iteration", "Q-learning"]
         self.algo = StringVar(self.window)
         self.algo.set(self.options_algo[0])
         self.dropdown = OptionMenu(self.window, self.algo, *self.options_algo)
@@ -60,7 +60,7 @@ class Window:
         self.question = Label(image=self.img1)
         self.question.place(x=790, y=330)
 
-        self.myTip = Hovertip(self.question,' Represents a probability of ending in a desired state \n 1.0 represents a 100% probability - a deterministic environment \n 0.5 represents a 50% probability of ending in a desired state and \n a 50% probability of ending in other possible state \n this probability is equally distributed \n among every other neighboring state', hover_delay=0)        
+        self.myTip = Hovertip(self.question,' Represents a probability of ending in a desired state \n 1.0 represents a 100% probability - a deterministic environment \n 0.5 represents a 50% probability of ending in a desired state and \n a 50% probability of ending in other possible state \n this probability is equally distributed \n among every other neighbouring state', hover_delay=0)        
 
 
     def destroy_intro_window(self):
@@ -121,7 +121,7 @@ class Window:
         self.canvas_help.create_text(90, 30, text = "V(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
         self.canvas_help.create_text(30, 90, text = "R(s)", fill = "#000", font = ("RobotoRoman-Bold", 15))
         self.canvas_help.create_text(90, 90, text = "Policy", fill = "#000", font = ("RobotoRoman-Bold", 14))
-        self.canvas.create_text(710, 50, text = " Click on top left widget, choose an actor \n and click on a gridworld state to place/remove it. \n You need to place at least agent and goal \n to start environment. \n Choose \"Change reward\" from options, \n click on a desired state \n and choose new reward value. \n You can save your environment and load it later. \n Number in a bottom left corner of a state represents \n reward agent obtains by getting to the state. \n After starting the algoritm policy and value \n wil be calculated and rendered for every state.", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 10), anchor=NW, tags="setupHelp")
+        self.canvas.create_text(710, 50, text = " Click on top left widget, choose an actor \n and click on a gridworld state to place/remove it. \n You need to place at least agent and goal \n to start environment. \n Choose \"Change reward\" from options, \n click on a desired state \n and choose new reward value. \n You can save your environment and load it later. \n Number in a bottom left corner of a state represents \n reward agent obtains by getting to the state. \n After starting the algoritm policy and value \n will be calculated and rendered for every state.", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 10), anchor=NW, tags="setupHelp")
         self.window.update()
         self.space_height = self.canvas_grid.winfo_height() / self.size
         self.space_width = self.canvas_grid.winfo_width() / self.size
@@ -365,8 +365,9 @@ class Window:
             self.canvas.create_image(854, 100, image=self.equation_img)
             self.environment.draw_policy()
 
-        # if self.algo.get() == self.options_algo[2]:
-        #     self.algorithm = Q_learning(self.environment)
+        if self.algo.get() == self.options_algo[2]:
+            self.algorithm = Q_learning(self.environment)
+            self.environment.set_agent_img(self.img_agent)
 
         self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_speed.place(x = 117, y = 115)
@@ -389,7 +390,7 @@ class Window:
         self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
         self.canvas.create_text(10, 280, text = """ Press Next to render new iteration. \n Specify in Speed how many \n iterations should pass before rendering. 
- Click on any state and click next \n to see how state value was calculated.
+ Click on any state to show \n the math behind the calculations.
  Press next until algorithm converges.\n""", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 9), anchor=NW)
 
         self.environment.draw_values()

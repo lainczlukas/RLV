@@ -1,4 +1,4 @@
-from tkinter import Canvas
+from tkinter import *
 import numpy as np
 
 from Enums import Actors, Directions
@@ -205,3 +205,17 @@ class Environment:
 
         self.space_height = self.canvas_grid.winfo_height() / self.grid_size
         self.space_width = self.canvas_grid.winfo_width() / self.grid_size
+
+    
+    def set_agent_img(self, img):
+        self.img_agent = img
+
+
+    def draw_agent(self,x,y):
+        self.canvas_grid.delete('agent')            
+
+        index = np.where(self.grid_actors == Actors.agent)
+        if len(index[0]) > 0:
+            self.grid_actors[index[0][0], index[1][0]] = Actors.empty
+        self.grid_actors[x,y] = Actors.agent
+        self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
