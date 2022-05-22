@@ -32,7 +32,9 @@ class Environment:
                     self.canvas_grid.itemconfig(text, text=str(round(self.V[x,y], 2)))
         
        
-
+    def update_values_on(self,x,y):
+        text = self.canvas_grid.find_withtag('V{}{}'.format(x,y))
+        self.canvas_grid.itemconfig(text, text=str(round(self.V[x,y], 2)))
 
     def draw_values(self):
         for x in range(self.grid_size):
@@ -72,6 +74,11 @@ class Environment:
                 if self.grid_actors[x,y] != Actors.obstacle:
                     text = self.canvas_grid.find_withtag('P{}{}'.format(x,y))
                     self.canvas_grid.itemconfig(text, text=str(Directions(self.policy[x,y]).name))
+
+
+    def update_policy_on(self,x,y):
+        text = self.canvas_grid.find_withtag('P{}{}'.format(x,y))
+        self.canvas_grid.itemconfig(text, text=str(Directions(self.policy[x,y]).name))
 
 
     def draw_policy(self):

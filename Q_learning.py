@@ -24,6 +24,8 @@ class Q_learning:
         self.current_state = (int(self.start[0]), int(self.start[1]))
         self.converged = False
 
+        self.environment.draw_policy()
+
 
     def step(self, step):
         if self.converged:
@@ -39,13 +41,15 @@ class Q_learning:
                 action = choice([0,1,2,3])
 
             next_state, reward, done = self.get_new_state(action)
-            print(next_state)
-            print(reward)
-            print(done)
-            print(self.environment.grid_actors)
 
             self.qtable[self.current_state[0], self.current_state[1], action] =  self.qtable[self.current_state[0], self.current_state[1], action] + self.learning_rate * (reward + self.gamma * self.qtable[next_state[0], next_state[1], action] - self.qtable[self.current_state[0], self.current_state[1], action])
-            
+             
+            self.environment.policy[self.current_state[0], self.current_state[1]] = np.argmax(self.qtable[self.current_state[0], self.current_state[1], :])
+            self.environment.update_policy_on(self.current_state[0], self.current_state[1])
+
+            self.environment.V[self.current_state[0], self.current_state[1]] = max(self.qtable[self.current_state[0], self.current_state[1], :])
+            self.environment.update_values_on(self.current_state[0], self.current_state[1])
+
             if done:
                 self.current_state = (int(self.start[0]), int(self.start[1]))
                 self.environment.draw_agent(self.current_state)
