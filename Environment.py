@@ -211,7 +211,9 @@ class Environment:
         self.img_agent = img
 
 
-    def draw_agent(self,x,y):
+    def draw_agent(self, state):
+        x = state[0]
+        y = state[1]
         self.canvas_grid.delete('agent')            
 
         index = np.where(self.grid_actors == Actors.agent)
