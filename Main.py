@@ -1,4 +1,5 @@
 from Policy_Iteration import Policy_Iteration
+from Sarsa import Sarsa
 from Value_Iteration import Value_Iteration
 from Q_learning import Q_learning
 from Enums import Actors
@@ -45,7 +46,7 @@ class Window:
         self.scale_size = Scale(from_=2, to=6, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
         self.scale_size.place(x = 704, y = 220)
 
-        self.options_algo = ["Value Iteration", "Policy Iteration", "Q-learning"]
+        self.options_algo = ["Value Iteration", "Policy Iteration", "Q-learning", "SARSA"]
         self.algo = StringVar(self.window)
         self.algo.set(self.options_algo[0])
         self.dropdown = OptionMenu(self.window, self.algo, *self.options_algo)
@@ -314,12 +315,9 @@ class Window:
                 else:
                     self.environment.update_reward(self.environment.R[x,y], x, y)
 
-        self.load_images()        
-        self.draw_actors()
         f.close()
+        self.load_images()        
 
-
-    def draw_actors(self):
         for x in range(self.size):
             for y in range(self.size):
                 if self.environment.grid_actors[x,y] == Actors.agent:
@@ -349,50 +347,8 @@ class Window:
 
 
     def show_main_window(self):
-        self.background_img = PhotoImage(file = f"img/background_main.png")
-        self.background = self.canvas.create_image(612.5, 250.0, image=self.background_img)
-
-        self.environment.set_transitions()
-
-        if self.algo.get() == self.options_algo[0]:
-            self.algorithm = Value_Iteration(self.environment)
-            self.equation_img = PhotoImage(file = f"img/VI.png")
-            self.canvas.create_image(854, 100, image=self.equation_img)
-
-        if self.algo.get() == self.options_algo[1]:
-            self.algorithm = Policy_Iteration(self.environment)
-            self.equation_img = PhotoImage(file = f"img/PI.png")
-            self.canvas.create_image(854, 100, image=self.equation_img)
-            self.environment.draw_policy()
-
-        if self.algo.get() == self.options_algo[2]:
-            self.algorithm = Q_learning(self.environment)
-            self.environment.set_agent_img(self.img_agent)
-
-        self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
-        self.scale_speed.place(x = 117, y = 115)
-
-        self.scale_gamma = Scale(from_=0, to=0.95, orient=HORIZONTAL, length=70, resolution=0.05, bg = "#E4E4E4")
-        self.scale_gamma.place(x = 117, y = 180)
-        self.scale_gamma.set(0.8)
-
-        self.img0 = PhotoImage(file = f"img/img0.png")
-        self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = self.step, relief = "flat")
-        self.b0.place(x = 64, y = 50, width = 110, height = 35)
-
-        self.img2 = PhotoImage(file = f"img/img2.png")
-        self.b1 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
-        self.b1.place(x = 19, y = 410, width = 200, height = 35)
-
-        self.canvas_math = Canvas(self.canvas, bg = "#E4E4E4", height=265, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
-        self.canvas_math.place(x = 729, y = 185)
-
-        self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
-        self.canvas.create_text(10, 280, text = """ Press Next to render new iteration. \n Specify in Speed how many \n iterations should pass before rendering. 
- Click on any state to show \n the math behind the calculations.
- Press next until algorithm converges.\n""", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 9), anchor=NW)
-
+        self.setup_widgets_main()
+        self.setup_algo()
         self.environment.draw_values()
         self.canvas_grid.bind("<Button-1>", self.render_math)         
 
@@ -428,6 +384,57 @@ class Window:
         self.scale_gamma.destroy()
         self.scale_speed.destroy()
         self.show_intro_window()
+
+
+    def setup_algo(self):
+        if self.algo.get() == self.options_algo[0]:
+            self.algorithm = Value_Iteration(self.environment)
+            self.equation_img = PhotoImage(file = f"img/VI.png")
+            self.canvas.create_image(854, 100, image=self.equation_img)
+        elif self.algo.get() == self.options_algo[1]:
+            self.algorithm = Policy_Iteration(self.environment)
+            self.equation_img = PhotoImage(file = f"img/PI.png")
+            self.canvas.create_image(854, 100, image=self.equation_img)
+            self.environment.draw_policy()
+        elif self.algo.get() == self.options_algo[2]:
+            self.algorithm = Q_learning(self.environment)
+            self.environment.set_agent_img(self.img_agent)
+            self.equation_img = PhotoImage(file = f"img/Q-learning.png")
+            self.canvas.create_image(854, 100, image=self.equation_img)
+        elif self.algo.get() == self.options_algo[3]:
+            self.algorithm = Sarsa(self.environment)
+            self.environment.set_agent_img(self.img_agent)
+            self.equation_img = PhotoImage(file = f"img/Sarsa.png")
+            self.canvas.create_image(854, 100, image=self.equation_img)
+
+    
+    def setup_widgets_main(self):
+        self.background_img = PhotoImage(file = f"img/background_main.png")
+        self.background = self.canvas.create_image(612.5, 250.0, image=self.background_img)
+
+        self.scale_speed = Scale(from_=1, to=100, orient=HORIZONTAL, length=70, resolution=1, bg = "#E4E4E4")
+        self.scale_speed.place(x = 117, y = 115)
+
+        self.scale_gamma = Scale(from_=0, to=0.95, orient=HORIZONTAL, length=70, resolution=0.05, bg = "#E4E4E4")
+        self.scale_gamma.place(x = 117, y = 180)
+        self.scale_gamma.set(0.8)
+
+        self.img0 = PhotoImage(file = f"img/img0.png")
+        self.b0 = Button(image = self.img0, borderwidth = 0, highlightthickness = 0, command = self.step, relief = "flat")
+        self.b0.place(x = 64, y = 50, width = 110, height = 35)
+
+        self.img2 = PhotoImage(file = f"img/img2.png")
+        self.b1 = Button(image = self.img2, borderwidth = 0, highlightthickness = 0, command = self.destroy_main_window, relief = "flat")
+        self.b1.place(x = 19, y = 410, width = 200, height = 35)
+
+        self.canvas_math = Canvas(self.canvas, bg = "#E4E4E4", height=265, width=250, bd = 0, highlightthickness = 0, relief = "ridge")
+        self.canvas_math.place(x = 729, y = 185)
+
+        self.canvas.create_text(78.5, 144.5, text = "Speed:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
+        self.canvas.create_text(72.0, 209.5, text = "Gamma:", fill = "#ffffff", font = ("RobotoRoman-Bold", 15))
+        self.canvas.create_text(10, 280, text = """ Press Next to render new iteration. \n Specify in Speed how many \n iterations should pass before rendering. 
+ Click on any state to show \n the math behind the calculations.
+ Press next until algorithm converges.\n""", fill = "#E4E4E4", font = ("RobotoRoman-Bold", 9), anchor=NW)
 
 
 if __name__ == "__main__":

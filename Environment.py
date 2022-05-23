@@ -3,6 +3,8 @@ import numpy as np
 
 from Enums import Actors, Directions
 
+from random import choice
+
 class Environment:
     def __init__(self, grid_size, canvas_grid: Canvas, space_width, determinism):
         self.grid_size = grid_size
@@ -22,6 +24,7 @@ class Environment:
         self.policy = np.zeros((self.grid_size, self.grid_size), int)
 
         self.equations = {}
+        self.set_transitions()
 
 
     def update_values(self):
@@ -228,3 +231,47 @@ class Environment:
             self.grid_actors[index[0][0], index[1][0]] = Actors.empty
         self.grid_actors[x,y] = Actors.agent
         self.canvas_grid.create_image(x * self.space_width, y * self.space_height, image=self.img_agent, anchor=NW, tags='agent')
+
+
+    def get_new_state(self, action, state):
+        options = []
+        x = state[0]
+        y = state[1]
+
+        if x != self.grid_size - 1 and self.grid_actors[x+1,y] != Actors.obstacle:
+            chance = self.P[x, y, action, x + 1, y] * 100
+            for _ in range(int(chance)):
+                options.append((x + 1, y))
+        if x != 0 and self.grid_actors[x-1,y] != Actors.obstacle:
+            chance = self.P[x, y, action, x - 1, y] * 100
+            for _ in range(int(chance)):
+                options.append((x - 1, y))
+
+        if y != self.grid_size - 1 and self.grid_actors[x,y+1] != Actors.obstacle:
+            chance = self.P[x, y, action, x, y + 1] * 100
+            for _ in range(int(chance)):
+                options.append((x, y + 1))
+        
+        if y != 0 and self.grid_actors[x,y-1] != Actors.obstacle:
+            chance = self.P[x, y, action, x, y - 1] * 100
+            for _ in range(int(chance)):
+                options.append((x, y - 1))
+
+        if len(options) == 0:
+            options.append(state)    
+        next_state = choice(options)
+
+        reward = self.R[next_state]
+        done = False
+        if self.grid_actors[next_state] == Actors.goal or self.grid_actors[next_state] == Actors.monster:
+            done = True
+
+        return next_state, reward, done
+
+
+    def init_equation(self):
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                equation = "Q({},{}) = [N=0,E=0,S=0,W=0]".format(x,y)   
+                self.equations['{}{}'.format(x,y)] = []             
+                self.equations['{}{}'.format(x,y)].append(equation)
