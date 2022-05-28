@@ -4,6 +4,7 @@ from Environment import Environment
 class Value_Iteration:   
     def __init__(self, environment: Environment):
         self.environment = environment
+        self.environment.set_transitions()
 
         self.grid_size = environment.grid_size
         self.grid_actors = environment.grid_actors
